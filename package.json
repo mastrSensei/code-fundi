@@ -4,7 +4,7 @@
   "description": "",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.75.0"
+    "vscode": "^1.70.2"
   },
   "categories": [
     "Other"
@@ -15,7 +15,28 @@
     "commands": [{
       "command": "code-fundi.helloWorld",
       "title": "Hello World"
-    }]
+    }],
+    "menus": {
+      "editor/context": [
+          {
+            "submenu": "code-fundi.submenu",
+            "group": "code-fundi.group",
+            "when": "editorHasSelection"
+          }
+      ],
+      "code-fundi.submenu": [
+        {
+          "command": "code-fundi.helloWorld",
+          "group": "code-fundi.group"
+        }
+      ]
+    },
+    "submenus": [
+      {
+        "id": "code-fundi.submenu",
+        "label": "✨Code Fundi"
+      }
+    ]
   },
   "scripts": {
     "lint": "eslint .",

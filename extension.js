@@ -22,6 +22,28 @@ function activate(context) {
 
 		// Display a message box to the user
 		vscode.window.showInformationMessage('Code Fundi!');
+
+		
+	});
+
+	context.subscriptions.push(disposable);
+}
+
+function codeHighlight() {
+	let disposable = vscode.commands.registerCommand('code-fundi.codeHighlight', function () {
+		// The code you place here will be executed every time your command is executed
+
+		const editor = vscode.window.activeTextEditor;
+		const selection = editor.selection;
+		if (selection && !selection.isEmpty) {
+			const selectionRange = new vscode.Range(selection.start.line, selection.start.character, selection.end.line, selection.end.character);
+			const highlighted = editor.document.getText(selectionRange);
+
+			// Display a message box to the user
+			vscode.window.showInformationMessage(`Code Fundi: ${highlighted}`);
+		}
+
+		
 	});
 
 	context.subscriptions.push(disposable);
@@ -32,5 +54,6 @@ function deactivate() {}
 
 module.exports = {
 	activate,
-	deactivate
+	deactivate,
+	codeHighlight
 }
