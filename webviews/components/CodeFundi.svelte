@@ -1,5 +1,3 @@
-<link rel="stylesheet" href="bundle.css" />
-
 <script>
     // import '../../out/compiled/bundle.css';
   let messages = [];

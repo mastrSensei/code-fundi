@@ -4,7 +4,7 @@ import commonjs from "@rollup/plugin-commonjs";
 import terser from "@rollup/plugin-terser";
 import sveltePreprocess from "svelte-preprocess";
 import typescript from "@rollup/plugin-typescript";
-import css from 'rollup-plugin-css-only';
+import css from 'rollup-plugin-import-css';
 import path from "path";
 import fs from "fs";
 
