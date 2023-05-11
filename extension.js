@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
+import { SidebarProvider } from "./sidebar/SidebarProvider";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -9,6 +10,19 @@ const vscode = require('vscode');
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
+
+	const sidebarProvider = new SidebarProvider(context.extensionUri);
+
+	const item = vscode.window.createStatusBarItem(
+		vscode.StatusBarAlignment.Right
+	);
+	// item.text = "$(beaker) Add Todo";
+	// item.command = "vstodo.addTodo";
+	// item.show();
+
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider("code-fundi-sidebar", sidebarProvider)
+	);
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated

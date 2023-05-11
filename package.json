@@ -9,9 +9,27 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onView:code-fundi-sidebar"
+  ],
   "main": "./extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [{
+        "id": "code-fundi-sidebar-view",
+        "icon": "media/logo.png",
+        "title": "Code Fundi"
+      }]
+    },
+    "views": {
+      "code-fundi-sidebar-view": [{
+        "type": "webview",
+        "id": "code-fundi-sidebar",
+        "name": "Code Fundi",
+        "icon": "media/logo.png",
+        "contextualTitle": "Code Fundi"
+      }]
+    },
     "commands": [{
       "command": "code-fundi.helloWorld",
       "title": "Hello World"
