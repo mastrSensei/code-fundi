@@ -2,12 +2,6 @@
   let messages = [];
   let newMessage = "";
 
-  function handleKeyPress(event) {
-    if (event.key === "Enter") {
-      sendMessage();
-    }
-  }
-
   function sendMessage() {
     if (newMessage.trim() !== "") {
       messages = [...messages, newMessage];

@@ -47,7 +47,7 @@ export default fs
         commonjs(),
         typescript({
           tsconfig: "webviews/tsconfig.json",
-          sourceMap: !production,
+          sourceMap: true,
           inlineSources: !production,
         }),
 
