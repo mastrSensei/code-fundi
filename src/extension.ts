@@ -33,7 +33,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('code-fundi.codeDebug', async function () {
 			// The code you place here will be executed every time your command is executed
-
 			const editor = vscode.window.activeTextEditor;
 			const selection = editor?.selection;
 			if (selection && !selection.isEmpty) {

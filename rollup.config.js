@@ -33,7 +33,7 @@ export default fs
           preprocess: sveltePreprocess(),
         }),
 
-        css({output: "bundle.css"}),
+        css({output: "sidebar.css"}),
 
         // If you have external dependencies installed from
         // npm, you'll most likely need these plugins. In
