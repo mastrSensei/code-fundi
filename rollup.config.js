@@ -48,7 +48,7 @@ export default fs
         typescript({
           tsconfig: "webviews/tsconfig.json",
           sourceMap: true,
-          inlineSources: !production,
+          inlineSources: true,
         }),
 
         // In dev mode, call `npm run start` once

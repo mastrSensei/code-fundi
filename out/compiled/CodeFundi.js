@@ -416,14 +416,14 @@ var app = (function () {
 
     function get_each_context(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[6] = list[i];
+    	child_ctx[5] = list[i];
     	return child_ctx;
     }
 
-    // (66:2) {#each messages as message}
+    // (69:2) {#each messages as message}
     function create_each_block(ctx) {
     	let div;
-    	let t_value = /*message*/ ctx[6] + "";
+    	let t_value = /*message*/ ctx[5] + "";
     	let t;
 
     	const block = {
@@ -431,14 +431,14 @@ var app = (function () {
     			div = element("div");
     			t = text(t_value);
     			attr_dev(div, "class", "message svelte-zrhx9c");
-    			add_location(div, file, 66, 4, 1215);
+    			add_location(div, file, 69, 4, 1302);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
     			append_dev(div, t);
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*messages*/ 1 && t_value !== (t_value = /*message*/ ctx[6] + "")) set_data_dev(t, t_value);
+    			if (dirty & /*messages*/ 1 && t_value !== (t_value = /*message*/ ctx[5] + "")) set_data_dev(t, t_value);
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(div);
@@ -449,7 +449,7 @@ var app = (function () {
     		block,
     		id: create_each_block.name,
     		type: "each",
-    		source: "(66:2) {#each messages as message}",
+    		source: "(69:2) {#each messages as message}",
     		ctx
     	});
 
@@ -491,15 +491,15 @@ var app = (function () {
     			button.textContent = "Send a message";
     			attr_dev(input, "type", "text");
     			attr_dev(input, "class", "message-input svelte-zrhx9c");
-    			add_location(input, file, 71, 6, 1362);
+    			add_location(input, file, 74, 6, 1449);
     			attr_dev(button, "class", "send-button svelte-zrhx9c");
-    			add_location(button, file, 72, 6, 1437);
+    			add_location(button, file, 75, 6, 1524);
     			attr_dev(form, "class", "svelte-zrhx9c");
-    			add_location(form, file, 70, 4, 1299);
+    			add_location(form, file, 73, 4, 1386);
     			attr_dev(div0, "class", "message-box svelte-zrhx9c");
-    			add_location(div0, file, 69, 2, 1268);
+    			add_location(div0, file, 72, 2, 1355);
     			attr_dev(div1, "class", "chat svelte-zrhx9c");
-    			add_location(div1, file, 64, 0, 1160);
+    			add_location(div1, file, 67, 0, 1247);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -524,8 +524,8 @@ var app = (function () {
     			if (!mounted) {
     				dispose = [
     					listen_dev(input, "input", /*input_input_handler*/ ctx[2]),
-    					listen_dev(button, "click", /*click_handler*/ ctx[3], false, false, false, false),
-    					listen_dev(form, "submit", prevent_default(/*submit_handler*/ ctx[4]), false, true, false, false)
+    					listen_dev(button, "click", callFundi, false, false, false, false),
+    					listen_dev(form, "submit", prevent_default(/*submit_handler*/ ctx[3]), false, true, false, false)
     				];
 
     				mounted = true;
@@ -582,7 +582,7 @@ var app = (function () {
     }
 
     function callFundi() {
-    	
+    	tsvscode.postMessage({ type: "onInfo", value: "Info message" });
     }
 
     function instance($$self, $$props, $$invalidate) {
@@ -609,10 +609,6 @@ var app = (function () {
     		$$invalidate(1, newMessage);
     	}
 
-    	const click_handler = () => {
-    		tsvscode.postMessage({ type: "onInfo", text: "Info message" });
-    	};
-
     	const submit_handler = () => $$invalidate(1, newMessage = '');
 
     	$$self.$capture_state = () => ({
@@ -631,7 +627,7 @@ var app = (function () {
     		$$self.$inject_state($$props.$$inject);
     	}
 
-    	return [messages, newMessage, input_input_handler, click_handler, submit_handler];
+    	return [messages, newMessage, input_input_handler, submit_handler];
     }
 
     class CodeFundi extends SvelteComponentDev {

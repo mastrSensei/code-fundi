@@ -10,7 +10,10 @@
   }
 
   function callFundi() {
-
+    tsvscode.postMessage({
+      type: "onInfo",
+      value: "Info message"
+    });
   }
 </script>
 
@@ -70,12 +73,7 @@
   <div class="message-box">
     <form on:submit|preventDefault={() => newMessage = ''}>
       <input type="text" class="message-input" bind:value={newMessage} />
-      <button class="send-button" on:click={() => {
-            tsvscode.postMessage({
-              type: "onInfo",
-              text: "Info message"
-            });
-      }}>Send a message</button>
+      <button class="send-button" on:click={callFundi}>Send a message</button>
     </form>
   </div>
 </div>

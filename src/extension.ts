@@ -27,7 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
 		// Display a message box to the user
 		vscode.window.showInformationMessage('Hello World from Code Fundi!');
 
-		CodeFundiPanel.createOrShow(context.extensionUri)
+		CodeFundiPanel.createOrShow(context.extensionUri);
 		})
 	);
 
@@ -52,7 +52,7 @@ export function activate(context: vscode.ExtensionContext) {
 					responseType: 'stream'
 				});
 
-				console.log(JSON.stringify(response))
+				console.log(JSON.stringify(response));
 
 				// Display a message box to the user
 				vscode.window.showInformationMessage(`Code Fundi: ${highlighted}`);
