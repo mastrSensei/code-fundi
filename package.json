@@ -39,7 +39,7 @@
       },
       {
         "command": "code-fundi.codeDebug",
-        "title": "Debug"
+        "title": "Debug selection"
       }
     ],
     "menus": {
