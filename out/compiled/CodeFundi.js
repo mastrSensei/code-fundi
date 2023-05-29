@@ -3648,7 +3648,7 @@ var app = (function () {
     	return child_ctx;
     }
 
-    // (172:2) {:else}
+    // (174:2) {:else}
     function create_else_block(ctx) {
     	let each_1_anchor;
     	let each_value = /*messages*/ ctx[0];
@@ -3711,17 +3711,17 @@ var app = (function () {
     		block,
     		id: create_else_block.name,
     		type: "else",
-    		source: "(172:2) {:else}",
+    		source: "(174:2) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (166:2) {#if messages.length === 0}
+    // (168:2) {#if messages.length === 0}
     function create_if_block(ctx) {
     	let div0;
-    	let raw0_value = "Code Fundi" + "";
+    	let raw0_value = "Code Fundi 👷🏽‍♂️" + "";
     	let t0;
     	let br0;
     	let br1;
@@ -3738,11 +3738,11 @@ var app = (function () {
     			t1 = space();
     			div1 = element("div");
     			attr_dev(div0, "class", "banner svelte-ltn26k");
-    			add_location(div0, file, 166, 4, 4163);
-    			add_location(br0, file, 167, 4, 4216);
-    			add_location(br1, file, 167, 8, 4220);
+    			add_location(div0, file, 168, 4, 4313);
+    			add_location(br0, file, 169, 4, 4374);
+    			add_location(br1, file, 169, 8, 4378);
     			attr_dev(div1, "class", "welcome svelte-ltn26k");
-    			add_location(div1, file, 168, 4, 4230);
+    			add_location(div1, file, 170, 4, 4388);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div0, anchor);
@@ -3769,14 +3769,14 @@ var app = (function () {
     		block,
     		id: create_if_block.name,
     		type: "if",
-    		source: "(166:2) {#if messages.length === 0}",
+    		source: "(168:2) {#if messages.length === 0}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (173:4) {#each messages as message}
+    // (175:4) {#each messages as message}
     function create_each_block(ctx) {
     	let div;
     	let raw_value = /*message*/ ctx[6] + "";
@@ -3785,7 +3785,7 @@ var app = (function () {
     		c: function create() {
     			div = element("div");
     			attr_dev(div, "class", "message svelte-ltn26k");
-    			add_location(div, file, 173, 6, 4444);
+    			add_location(div, file, 175, 6, 4602);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -3802,7 +3802,7 @@ var app = (function () {
     		block,
     		id: create_each_block.name,
     		type: "each",
-    		source: "(173:4) {#each messages as message}",
+    		source: "(175:4) {#each messages as message}",
     		ctx
     	});
 
@@ -3841,15 +3841,15 @@ var app = (function () {
     			button.textContent = "Send a message";
     			attr_dev(input, "type", "text");
     			attr_dev(input, "class", "message-input svelte-ltn26k");
-    			add_location(input, file, 179, 6, 4608);
+    			add_location(input, file, 181, 6, 4766);
     			attr_dev(button, "class", "send-button svelte-ltn26k");
-    			add_location(button, file, 180, 6, 4683);
+    			add_location(button, file, 182, 6, 4841);
     			attr_dev(form, "class", "svelte-ltn26k");
-    			add_location(form, file, 178, 4, 4545);
+    			add_location(form, file, 180, 4, 4703);
     			attr_dev(div0, "class", "message-box svelte-ltn26k");
-    			add_location(div0, file, 177, 2, 4514);
+    			add_location(div0, file, 179, 2, 4672);
     			attr_dev(div1, "class", "chat svelte-ltn26k");
-    			add_location(div1, file, 164, 0, 4108);
+    			add_location(div1, file, 166, 0, 4258);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -3990,8 +3990,11 @@ var app = (function () {
     						headers: { "Content-Type": "application/json" },
     						responseType: 'stream'
     					}).then(response => {
+    						// convert response to markdown
+    						response = response.data.replace(/\n/g, '<br>').replace(/\t/g, '&emsp;').replace(/\r/g, '<br>');
+
     						messages.pop();
-    						$$invalidate(0, messages = [...messages, JSON.stringify(response.data)]);
+    						$$invalidate(0, messages = [...messages, JSON.stringify(response)]);
     					}).catch(error => {
     						// Handle any errors
     						console.error(error);

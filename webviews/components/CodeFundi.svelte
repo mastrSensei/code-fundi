@@ -85,8 +85,10 @@
             responseType: 'stream'
           })
           .then(response => {
+            // convert response to markdown
+            response = response.data.replace(/\n/g, '<br>').replace(/\t/g, '&emsp;').replace(/\r/g, '<br>');
             messages.pop();
-            messages = [...messages, JSON.stringify(response.data)];
+            messages = [...messages, JSON.stringify(response)];
           })
           .catch(error => {
             // Handle any errors
@@ -164,7 +166,7 @@
 
 <div class="chat">
   {#if messages.length === 0}
-    <div class="banner">{@html "Code Fundi" }</div>
+    <div class="banner">{@html "Code Fundi 👷🏽‍♂️" }</div>
     <br><br>
     <div class="welcome">{@html 
       "To get started, type in the message box below or highlight your code then right click to access the options."
