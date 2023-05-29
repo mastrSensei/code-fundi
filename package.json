@@ -1,32 +1,62 @@
 {
   "name": "code-fundi",
   "displayName": "Code Fundi",
-  "description": "",
+  "description": "CodeFundi is an AI-powered code assistant that helps developers write better code faster",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.70.2"
+    "vscode": "^1.78.0"
   },
   "categories": [
     "Other"
   ],
   "activationEvents": [],
-  "main": "./extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
-    "commands": [{
-      "command": "code-fundi.helloWorld",
-      "title": "Hello World"
-    }],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "code-fundi-sidebar-view",
+          "icon": "media/logo.png",
+          "title": "Code Fundi"
+        }
+      ]
+    },
+    "views": {
+      "code-fundi-sidebar-view": [
+        {
+          "type": "webview",
+          "id": "code-fundi-sidebar",
+          "name": "Code Fundi",
+          "icon": "media/logo.png",
+          "contextualTitle": "Code Fundi"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "code-fundi.helloWorld",
+        "title": "Hello World"
+      },
+      {
+        "command": "code-fundi.codeDebug",
+        "title": "Debug selection"
+      }
+    ],
     "menus": {
       "editor/context": [
-          {
-            "submenu": "code-fundi.submenu",
-            "group": "code-fundi.group",
-            "when": "editorHasSelection"
-          }
+        {
+          "submenu": "code-fundi.submenu",
+          "group": "code-fundi.group",
+          "when": "editorHasSelection"
+        }
       ],
       "code-fundi.submenu": [
         {
           "command": "code-fundi.helloWorld",
+          "group": "code-fundi.group"
+        },
+        {
+          "command": "code-fundi.codeDebug",
           "group": "code-fundi.group"
         }
       ]
@@ -39,19 +69,46 @@
     ]
   },
   "scripts": {
-    "lint": "eslint .",
-    "pretest": "npm run lint",
-    "test": "node ./test/runTest.js"
+    "vscode:prepublish": "pnpm run package",
+    "compile": "rollup -c -w && webpack --mode production",
+    "watch": "concurrently \"rollup -c -w\" \"webpack --watch --mode development\"",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@types/vscode": "^1.75.0",
+    "@rollup/plugin-commonjs": "^24.1.0",
+    "@rollup/plugin-node-resolve": "^15.0.2",
+    "@rollup/plugin-terser": "^0.4.1",
+    "@rollup/plugin-typescript": "^11.1.0",
+    "@tsconfig/svelte": "^4.0.1",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
-    "eslint": "^8.34.0",
+    "@types/vscode": "^1.78.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.1",
+    "@typescript-eslint/parser": "^5.59.1",
+    "@vscode/test-electron": "^2.3.0",
+    "concurrently": "^8.0.1",
+    "eslint": "^8.39.0",
     "glob": "^8.1.0",
     "mocha": "^10.2.0",
-    "typescript": "^4.9.5",
-    "@vscode/test-electron": "^2.2.3"
+    "rollup": "^2.78.1",
+    "rollup-plugin-css-only": "^4.3.0",
+    "rollup-plugin-import-css": "^3.2.1",
+    "rollup-plugin-postcss": "^4.0.2",
+    "rollup-plugin-svelte": "^7.1.4",
+    "svelte": "^3.59.1",
+    "svelte-preprocess": "^5.0.3",
+    "ts-loader": "^9.4.2",
+    "typescript": "^5.0.4",
+    "webpack": "^5.82.1",
+    "webpack-cli": "^5.0.2"
+  },
+  "dependencies": {
+    "axios": "^1.4.0"
   }
 }
