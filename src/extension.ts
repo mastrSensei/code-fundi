@@ -22,7 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('code-fundi.helloWorld', () => {
 		// The code you place here will be executed every time your command is executed
 		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Code Fundi!');
+		vscode.window.showInformationMessage('Hello World from Code Fundi 👷🏽‍♂️!');
 
 		CodeFundiPanel.createOrShow(context.extensionUri);
 		})
@@ -46,6 +46,87 @@ export function activate(context: vscode.ExtensionContext) {
 				sidebarProvider._view?.webview.postMessage({
 					type: 'debug',
 					value: highlighted
+				});
+			}
+		})
+	);
+
+	context.subscriptions.push(vscode.commands.registerCommand('code-fundi.codeAsk', async function () {
+			// The code you place here will be executed every time your command is executed
+			const editor = vscode.window.activeTextEditor;
+			const selection = editor?.selection;
+
+			// If there's no code window open
+			if(!editor) {
+				vscode.window.showInformationMessage(`Active text editor not detected`);
+				return;
+			}
+
+			if (selection && !selection.isEmpty) {
+				const selectionRange = new vscode.Range(selection.start.line, selection.start.character, selection.end.line, selection.end.character);
+				const highlighted = editor.document.getText(selectionRange);
+
+				sidebarProvider._view?.webview.postMessage({
+					type: 'ask',
+					value: highlighted
+				});
+			}
+			else {
+				sidebarProvider._view?.webview.postMessage({
+					type: 'ask',
+					value: ''
+				});
+			}
+		})
+	);
+
+	context.subscriptions.push(vscode.commands.registerCommand('code-fundi.codeExplain', async function () {
+			// The code you place here will be executed every time your command is executed
+			const editor = vscode.window.activeTextEditor;
+			const selection = editor?.selection;
+
+			// If there's no code window open
+			if(!editor) {
+				vscode.window.showInformationMessage(`Active text editor not detected`);
+				return;
+			}
+
+			if (selection && !selection.isEmpty) {
+				const selectionRange = new vscode.Range(selection.start.line, selection.start.character, selection.end.line, selection.end.character);
+				const highlighted = editor.document.getText(selectionRange);
+
+				sidebarProvider._view?.webview.postMessage({
+					type: 'explain',
+					value: highlighted
+				});
+			}
+		})
+	);
+
+	context.subscriptions.push(vscode.commands.registerCommand('code-fundi.codeGenerate', async function () {
+			// The code you place here will be executed every time your command is executed
+			const editor = vscode.window.activeTextEditor;
+			const selection = editor?.selection;
+
+			// If there's no code window open
+			if(!editor) {
+				vscode.window.showInformationMessage(`Active text editor not detected`);
+				return;
+			}
+
+			if (selection && !selection.isEmpty) {
+				const selectionRange = new vscode.Range(selection.start.line, selection.start.character, selection.end.line, selection.end.character);
+				const highlighted = editor.document.getText(selectionRange);
+
+				sidebarProvider._view?.webview.postMessage({
+					type: 'generate',
+					value: highlighted
+				});
+			}
+			else {
+				sidebarProvider._view?.webview.postMessage({
+					type: 'generate',
+					value: ''
 				});
 			}
 		})
