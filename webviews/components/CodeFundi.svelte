@@ -2,11 +2,12 @@
   import { onMount } from "svelte";
   import axios from 'axios';
   import snarkdown from 'snarkdown';
+  import { Pulse } from 'svelte-loading-spinners';
 
   let messages = [];
   let newMessage = "";
   const fundiV1 = 'https://code-fundi-api.vercel.app';
-  const api_key = "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";
+  const api_key = "";
 
   function debug(){
       tsvscode.postMessage({
@@ -20,62 +21,21 @@
       messages = [...messages, newMessage];
       newMessage = "";
     }
-    // var message = '';
-
-    // if (event === undefined){
-    //   if (newMessage.trim() !== ""){
-    //     message = {'type': 'debug', 'value': newMessage};
-    //     console.log(message)
-    //   }
-    // }
-    // message = event.data; // The json data that the extension sent
-    // console.log(message)
-
-    // switch (message.type) {
-    //   case 'debug':
-    //     messages = [...messages, `<span style="color:#808080; font-weight: bold;">Debug:</span> <br> ${message.value}`];
-
-    //     // Loading message
-    //     messages = [...messages, '<span style="color:#808080; font-weight: bold;">Thinking 🧠...</span>'];
-
-    //     const response = axios({
-    //       method: 'POST',
-    //       url: `${fundiV1}/v1/fundi/debug`,
-    //       data: {
-    //         api_key: "",
-    //         code_block: message.value
-    //       },
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //       responseType: 'stream'
-    //     })
-    //     .then(response => {
-    //       messages.pop();
-    //       messages = [...messages, JSON.stringify(response.data)];
-    //     })
-    //     .catch(error => {
-    //       // Handle any errors
-    //       console.error(error);
-    //     });
-    //     break;
-    // }
   }
 
-  function askFundi() {
-    messages = [...messages, `<span style="color:#808080; font-weight: bold;">Ask:</span> <br> ${newMessage}`];
+  function fundiAPI(message, endpoint, data) {
+    const endpointName = endpoint.charAt(0).toUpperCase() + endpoint.slice(1);
+    const messageBody = {type: 'Query', data: `<span style="color:#808080; font-weight: bold;">${endpointName}: </span>   ${message.value}`};
+    messages = [...messages, messageBody];
 
     // Loading message
-    messages = [...messages, '<span style="color:#808080; font-weight: bold;">Thinking 🧠...</span>'];
+    const messageLoading = {type: 'Waiting', data: '<span style="color:#808080; font-weight: bold;">Thinking 🧠</span>'};
+    messages = [...messages, messageLoading];
 
     axios({
       method: 'POST',
-      url: `${fundiV1}/v1/fundi/ask`,
-      data: {
-        api_key: api_key,
-        code_block: '',
-        question: newMessage
-      },
+      url: `${fundiV1}/v1/fundi/${endpoint}`,
+      data: data,
       headers: {
         "Content-Type": "application/json",
       },
@@ -83,170 +43,66 @@
     })
     .then(response => {
       // convert response to markdown
-      response = response.data.replace(/\n/g, '<br>').replace(/\t/g, '&emsp;').replace(/\r/g, '<br>');
+      response = response.data.replace(/\n/g, ' ').replace(/\t/g, '&emsp;').replace(/\r/g, ' ')
       messages.pop();
-      messages = [...messages, JSON.stringify(response)];
+      const messageResponse = {type: 'Response', data: JSON.stringify(response)};
+      messages = [...messages, messageResponse];
     })
     .catch(error => {
       // Handle any errors
       console.error(error);
     });
+  } 
 
-        
+  function askFundi() {
+    let data = {
+        api_key: api_key,
+        code_block: '',
+        question: newMessage
+      };
+    let message = {
+      value: newMessage
+    }
+    fundiAPI(message, 'ask', data);
   }
 
   onMount(() => {
     window.addEventListener('message', event => {
       const message = event.data; // The json data that the extension sent
       console.log(message)
+      let data = {};
 
       switch (message.type) {
         case 'debug':
-          messages = [...messages, `<span style="color:#808080; font-weight: bold;">Debug:</span> <br> ${message.value}`];
-
-          // Loading message
-          messages = [...messages, '<span style="color:#808080; font-weight: bold;">Thinking 🧠...</span>'];
-
-          axios({
-            method: 'POST',
-            url: `${fundiV1}/v1/fundi/debug`,
-            data: {
+          data = {
               api_key: api_key,
               code_block: message.value
-            },
-            headers: {
-              "Content-Type": "application/json",
-            },
-            responseType: 'stream'
-          })
-          .then(response => {
-            // convert response to markdown
-            response = response.data.replace(/\n/g, '<br>').replace(/\t/g, '&emsp;').replace(/\r/g, '<br>');
-            messages.pop();
-            messages = [...messages, JSON.stringify(response)];
-          })
-          .catch(error => {
-            // Handle any errors
-            console.error(error);
-          });
+            };
+          fundiAPI(message, 'debug', data);
           break;
 
         case 'ask':
-          messages = [...messages, `<span style="color:#808080; font-weight: bold;">Ask:</span> <br> ${message.value}`];
-
-          // Loading message
-          messages = [...messages, '<span style="color:#808080; font-weight: bold;">Thinking 🧠...</span>'];
-
-          axios({
-            method: 'POST',
-            url: `${fundiV1}/v1/fundi/ask`,
-            data: {
+          data = {
               api_key: api_key,
               code_block: message.value
-            },
-            headers: {
-              "Content-Type": "application/json",
-            },
-            responseType: 'stream'
-          })
-          .then(response => {
-            // convert response to markdown
-            response = response.data.replace(/\n/g, '<br>').replace(/\t/g, '&emsp;').replace(/\r/g, '<br>');
-            messages.pop();
-            messages = [...messages, JSON.stringify(response)];
-          })
-          .catch(error => {
-            // Handle any errors
-            console.error(error);
-          });
+            };
+          fundiAPI(message, 'ask', data);
           break;
 
         case 'explain':
-          messages = [...messages, `<span style="color:#808080; font-weight: bold;">Explain:</span> <br> ${message.value}`];
-
-          // Loading message
-          messages = [...messages, '<span style="color:#808080; font-weight: bold;">Thinking 🧠...</span>'];
-
-          axios({
-            method: 'POST',
-            url: `${fundiV1}/v1/fundi/explain`,
-            data: {
+          data = {
               api_key: api_key,
               code_block: message.value
-            },
-            headers: {
-              "Content-Type": "application/json",
-            },
-            responseType: 'stream'
-          })
-          .then(response => {
-            // convert response to markdown
-            response = response.data.replace(/\n/g, '<br>').replace(/\t/g, '&emsp;').replace(/\r/g, '<br>');
-            messages.pop();
-            messages = [...messages, JSON.stringify(response)];
-          })
-          .catch(error => {
-            // Handle any errors
-            console.error(error);
-          });
+            };
+          fundiAPI(message, 'explain', data);
           break;
 
         case 'generate':
-          messages = [...messages, `<span style="color:#808080; font-weight: bold;">Generate:</span> <br> ${message.value}`];
-
-          // Loading message
-          messages = [...messages, '<span style="color:#808080; font-weight: bold;">Thinking 🧠...</span>'];
-
-          axios({
-            method: 'POST',
-            url: `${fundiV1}/v1/fundi/generate`,
-            data: {
+          data = {
               api_key: api_key,
               code_block: message.value
-            },
-            headers: {
-              "Content-Type": "application/json",
-            },
-            responseType: 'stream'
-          })
-          .then(response => {
-            // convert response to markdown
-            response = response.data.replace(/\n/g, '<br>').replace(/\t/g, '&emsp;').replace(/\r/g, '<br>');
-            messages.pop();
-            messages = [...messages, JSON.stringify(response)];
-          })
-          .catch(error => {
-            // Handle any errors
-            console.error(error);
-          });
-          break;
-          messages = [...messages, `<span style="color:#808080; font-weight: bold;">Complete:</span> <br> ${message.value}`];
-
-          // Loading message
-          messages = [...messages, '<span style="color:#808080; font-weight: bold;">Thinking 🧠...</span>'];
-
-          axios({
-            method: 'POST',
-            url: `${fundiV1}/v1/fundi/complete`,
-            data: {
-              api_key: api_key,
-              code_block: message.value
-            },
-            headers: {
-              "Content-Type": "application/json",
-            },
-            responseType: 'stream'
-          })
-          .then(response => {
-            // convert response to markdown
-            response = response.data.replace(/\n/g, '<br>').replace(/\t/g, '&emsp;').replace(/\r/g, '<br>');
-            messages.pop();
-            messages = [...messages, JSON.stringify(response)];
-          })
-          .catch(error => {
-            // Handle any errors
-            console.error(error);
-          });
+            };
+          fundiAPI(message, 'generate', data);
           break;
       }
     });
@@ -285,6 +141,19 @@
     color: #ffffff;
   }
 
+  .message-response {
+    margin-bottom: 8px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    color: #ffffff;
+    background-color: rgba(0, 112, 243, 0.3);
+  }
+
+  .loader {
+    padding: 5px;
+  }
+
   .message-box {
     display: flex;
     flex-direction: column; /* Update: Change the flex direction to column */
@@ -307,9 +176,22 @@
 
   .send-button {
     padding: 8px 16px;
-    background-color: #0070F3;
-    border: none;
-    border-radius: 4px;
+    background-color: #0071f300;
+    border: 2px solid;
+    border-image: linear-gradient(to right, #0070F3, #e81224);
+    border-image-slice: 1;
+    color: white;
+    cursor: pointer;
+		width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .send-button:hover {
+    padding: 8px 16px;
+    background-color: #0071f38a;
+    border: 2.5px solid;
+    border-image: linear-gradient(to right, #0070F3, #e81224);
+    border-image-slice: 1;
     color: white;
     cursor: pointer;
 		width: 100%;
@@ -320,13 +202,25 @@
 <div class="chat">
   {#if messages.length === 0}
     <div class="banner">{@html "Code Fundi 👷🏽‍♂️" }</div>
-    <br><br>
+      
     <div class="welcome">{@html 
       "To get started, type in the message box below or highlight your code then right click to access the options."
     }</div>   
   {:else}
     {#each messages as message}
-      <div class="message">{@html snarkdown(message)}</div>
+
+      {#if message.type === 'Query'}
+        <div class="message">{@html message.data}</div>
+      {:else if message.type === 'Waiting'}
+        <div class="message-response">{@html snarkdown(message.data)}
+          <div class="loader">
+            <Pulse size="20" color="#e81224" unit="px" duration="3s" />
+          </div>
+        </div>
+      {:else if message.type === 'Response'}
+        <div class="message-response">{@html snarkdown(message.data)}</div>
+      {/if}
+      
     {/each}
   {/if}
 

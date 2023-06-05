@@ -51,6 +51,9 @@ var app = (function () {
     function element(name) {
         return document.createElement(name);
     }
+    function svg_element(name) {
+        return document.createElementNS('http://www.w3.org/2000/svg', name);
+    }
     function text(data) {
         return document.createTextNode(data);
     }
@@ -83,10 +86,60 @@ var app = (function () {
     function set_input_value(input, value) {
         input.value = value == null ? '' : value;
     }
+    function set_style(node, key, value, important) {
+        if (value == null) {
+            node.style.removeProperty(key);
+        }
+        else {
+            node.style.setProperty(key, value, important ? 'important' : '');
+        }
+    }
+    function toggle_class(element, name, toggle) {
+        element.classList[toggle ? 'add' : 'remove'](name);
+    }
     function custom_event(type, detail, { bubbles = false, cancelable = false } = {}) {
         const e = document.createEvent('CustomEvent');
         e.initCustomEvent(type, bubbles, cancelable, detail);
         return e;
+    }
+    class HtmlTag {
+        constructor(is_svg = false) {
+            this.is_svg = false;
+            this.is_svg = is_svg;
+            this.e = this.n = null;
+        }
+        c(html) {
+            this.h(html);
+        }
+        m(html, target, anchor = null) {
+            if (!this.e) {
+                if (this.is_svg)
+                    this.e = svg_element(target.nodeName);
+                /** #7364  target for <template> may be provided as #document-fragment(11) */
+                else
+                    this.e = element((target.nodeType === 11 ? 'TEMPLATE' : target.nodeName));
+                this.t = target.tagName !== 'TEMPLATE' ? target : target.content;
+                this.c(html);
+            }
+            this.i(anchor);
+        }
+        h(html) {
+            this.e.innerHTML = html;
+            this.n = Array.from(this.e.nodeName === 'TEMPLATE' ? this.e.content.childNodes : this.e.childNodes);
+        }
+        i(anchor) {
+            for (let i = 0; i < this.n.length; i += 1) {
+                insert(this.t, this.n[i], anchor);
+            }
+        }
+        p(html) {
+            this.d();
+            this.h(html);
+            this.i(this.a);
+        }
+        d() {
+            this.n.forEach(detach);
+        }
     }
 
     let current_component;
@@ -217,11 +270,47 @@ var app = (function () {
         render_callbacks = filtered;
     }
     const outroing = new Set();
+    let outros;
+    function group_outros() {
+        outros = {
+            r: 0,
+            c: [],
+            p: outros // parent group
+        };
+    }
+    function check_outros() {
+        if (!outros.r) {
+            run_all(outros.c);
+        }
+        outros = outros.p;
+    }
     function transition_in(block, local) {
         if (block && block.i) {
             outroing.delete(block);
             block.i(local);
         }
+    }
+    function transition_out(block, local, detach, callback) {
+        if (block && block.o) {
+            if (outroing.has(block))
+                return;
+            outroing.add(block);
+            outros.c.push(() => {
+                outroing.delete(block);
+                if (callback) {
+                    if (detach)
+                        block.d(1);
+                    callback();
+                }
+            });
+            block.o(local);
+        }
+        else if (callback) {
+            callback();
+        }
+    }
+    function create_component(block) {
+        block && block.c();
     }
     function mount_component(component, target, anchor, customElement) {
         const { fragment, after_update } = component.$$;
@@ -3639,6 +3728,274 @@ var app = (function () {
 
     var e={"":["<em>","</em>"],_:["<strong>","</strong>"],"*":["<strong>","</strong>"],"~":["<s>","</s>"],"\n":["<br />"]," ":["<br />"],"-":["<hr />"]};function n(e){return e.replace(RegExp("^"+(e.match(/^(\t| )+/)||"")[0],"gm"),"")}function r(e){return (e+"").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}function t(a,c){var o,l,g,s,p,u=/((?:^|\n+)(?:\n---+|\* \*(?: \*)+)\n)|(?:^``` *(\w*)\n([\s\S]*?)\n```$)|((?:(?:^|\n+)(?:\t|  {2,}).+)+\n*)|((?:(?:^|\n)([>*+-]|\d+\.)\s+.*)+)|(?:!\[([^\]]*?)\]\(([^)]+?)\))|(\[)|(\](?:\(([^)]+?)\))?)|(?:(?:^|\n+)([^\s].*)\n(-{3,}|={3,})(?:\n+|$))|(?:(?:^|\n+)(#{1,6})\s*(.+)(?:\n+|$))|(?:`([^`].*?)`)|(  \n\n*|\n{2,}|__|\*\*|[_*]|~~)/gm,m=[],h="",i=c||{},d=0;function f(n){var r=e[n[1]||""],t=m[m.length-1]==n;return r?r[1]?(t?m.pop():m.push(n),r[0|t]):r[0]:n}function $(){for(var e="";m.length;)e+=f(m[m.length-1]);return e}for(a=a.replace(/^\[(.+?)\]:\s*(.+)$/gm,function(e,n,r){return i[n.toLowerCase()]=r,""}).replace(/^\n+|\n+$/g,"");g=u.exec(a);)l=a.substring(d,g.index),d=u.lastIndex,o=g[0],l.match(/[^\\](\\\\)*\\$/)||((p=g[3]||g[4])?o='<pre class="code '+(g[4]?"poetry":g[2].toLowerCase())+'"><code'+(g[2]?' class="language-'+g[2].toLowerCase()+'"':"")+">"+n(r(p).replace(/^\n+|\n+$/g,""))+"</code></pre>":(p=g[6])?(p.match(/\./)&&(g[5]=g[5].replace(/^\d+/gm,"")),s=t(n(g[5].replace(/^\s*[>*+.-]/gm,""))),">"==p?p="blockquote":(p=p.match(/\./)?"ol":"ul",s=s.replace(/^(.*)(\n|$)/gm,"<li>$1</li>")),o="<"+p+">"+s+"</"+p+">"):g[8]?o='<img src="'+r(g[8])+'" alt="'+r(g[7])+'">':g[10]?(h=h.replace("<a>",'<a href="'+r(g[11]||i[l.toLowerCase()])+'">'),o=$()+"</a>"):g[9]?o="<a>":g[12]||g[14]?o="<"+(p="h"+(g[14]?g[14].length:g[13]>"="?1:2))+">"+t(g[12]||g[15],i)+"</"+p+">":g[16]?o="<code>"+r(g[16])+"</code>":(g[17]||g[1])&&(o=f(g[17]||"--"))),h+=l,h+=o;return (h+a.substring(d)+$()).replace(/^\n+|\n+$/g,"")}
 
+    const durationUnitRegex = /[a-zA-Z]/;
+    const range = (size, startAt = 0) => [...Array(size).keys()].map((i) => i + startAt);
+    // export const characterRange = (startChar, endChar) =>
+    //   String.fromCharCode(
+    //     ...range(
+    //       endChar.charCodeAt(0) - startChar.charCodeAt(0),
+    //       startChar.charCodeAt(0)
+    //     )
+    //   );
+    // export const zip = (arr, ...arrs) =>
+    //   arr.map((val, i) => arrs.reduce((list, curr) => [...list, curr[i]], [val]));
+
+    /* node_modules\.pnpm\svelte-loading-spinners@0.3.4\node_modules\svelte-loading-spinners\Pulse.svelte generated by Svelte v3.59.1 */
+    const file$1 = "node_modules\\.pnpm\\svelte-loading-spinners@0.3.4\\node_modules\\svelte-loading-spinners\\Pulse.svelte";
+
+    function get_each_context$1(ctx, list, i) {
+    	const child_ctx = ctx.slice();
+    	child_ctx[7] = list[i];
+    	return child_ctx;
+    }
+
+    // (12:1) {#each range(3, 0) as version}
+    function create_each_block$1(ctx) {
+    	let div;
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			attr_dev(div, "class", "cube svelte-1w8rpx6");
+    			set_style(div, "animation-delay", /*version*/ ctx[7] * (+/*durationNum*/ ctx[6] / 10) + /*durationUnit*/ ctx[5]);
+    			set_style(div, "left", /*version*/ ctx[7] * (+/*size*/ ctx[3] / 3 + +/*size*/ ctx[3] / 15) + /*unit*/ ctx[1]);
+    			toggle_class(div, "pause-animation", /*pause*/ ctx[4]);
+    			add_location(div, file$1, 12, 2, 465);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*size, unit*/ 10) {
+    				set_style(div, "left", /*version*/ ctx[7] * (+/*size*/ ctx[3] / 3 + +/*size*/ ctx[3] / 15) + /*unit*/ ctx[1]);
+    			}
+
+    			if (dirty & /*pause*/ 16) {
+    				toggle_class(div, "pause-animation", /*pause*/ ctx[4]);
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_each_block$1.name,
+    		type: "each",
+    		source: "(12:1) {#each range(3, 0) as version}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function create_fragment$1(ctx) {
+    	let div;
+    	let each_value = range(3, 0);
+    	validate_each_argument(each_value);
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block$1(get_each_context$1(ctx, each_value, i));
+    	}
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			attr_dev(div, "class", "wrapper svelte-1w8rpx6");
+    			set_style(div, "--size", /*size*/ ctx[3] + /*unit*/ ctx[1]);
+    			set_style(div, "--color", /*color*/ ctx[0]);
+    			set_style(div, "--duration", /*duration*/ ctx[2]);
+    			add_location(div, file$1, 10, 0, 338);
+    		},
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				if (each_blocks[i]) {
+    					each_blocks[i].m(div, null);
+    				}
+    			}
+    		},
+    		p: function update(ctx, [dirty]) {
+    			if (dirty & /*range, durationNum, durationUnit, size, unit, pause*/ 122) {
+    				each_value = range(3, 0);
+    				validate_each_argument(each_value);
+    				let i;
+
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context$1(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    					} else {
+    						each_blocks[i] = create_each_block$1(child_ctx);
+    						each_blocks[i].c();
+    						each_blocks[i].m(div, null);
+    					}
+    				}
+
+    				for (; i < each_blocks.length; i += 1) {
+    					each_blocks[i].d(1);
+    				}
+
+    				each_blocks.length = each_value.length;
+    			}
+
+    			if (dirty & /*size, unit*/ 10) {
+    				set_style(div, "--size", /*size*/ ctx[3] + /*unit*/ ctx[1]);
+    			}
+
+    			if (dirty & /*color*/ 1) {
+    				set_style(div, "--color", /*color*/ ctx[0]);
+    			}
+
+    			if (dirty & /*duration*/ 4) {
+    				set_style(div, "--duration", /*duration*/ ctx[2]);
+    			}
+    		},
+    		i: noop$1,
+    		o: noop$1,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    			destroy_each(each_blocks, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_fragment$1.name,
+    		type: "component",
+    		source: "",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    function instance$1($$self, $$props, $$invalidate) {
+    	let { $$slots: slots = {}, $$scope } = $$props;
+    	validate_slots('Pulse', slots, []);
+    	let { color = '#FF3E00' } = $$props;
+    	let { unit = 'px' } = $$props;
+    	let { duration = '1.5s' } = $$props;
+    	let { size = '60' } = $$props;
+    	let { pause = false } = $$props;
+    	let durationUnit = duration.match(durationUnitRegex)?.[0] ?? 's';
+    	let durationNum = duration.replace(durationUnitRegex, '');
+    	const writable_props = ['color', 'unit', 'duration', 'size', 'pause'];
+
+    	Object.keys($$props).forEach(key => {
+    		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== '$$' && key !== 'slot') console.warn(`<Pulse> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$$set = $$props => {
+    		if ('color' in $$props) $$invalidate(0, color = $$props.color);
+    		if ('unit' in $$props) $$invalidate(1, unit = $$props.unit);
+    		if ('duration' in $$props) $$invalidate(2, duration = $$props.duration);
+    		if ('size' in $$props) $$invalidate(3, size = $$props.size);
+    		if ('pause' in $$props) $$invalidate(4, pause = $$props.pause);
+    	};
+
+    	$$self.$capture_state = () => ({
+    		range,
+    		durationUnitRegex,
+    		color,
+    		unit,
+    		duration,
+    		size,
+    		pause,
+    		durationUnit,
+    		durationNum
+    	});
+
+    	$$self.$inject_state = $$props => {
+    		if ('color' in $$props) $$invalidate(0, color = $$props.color);
+    		if ('unit' in $$props) $$invalidate(1, unit = $$props.unit);
+    		if ('duration' in $$props) $$invalidate(2, duration = $$props.duration);
+    		if ('size' in $$props) $$invalidate(3, size = $$props.size);
+    		if ('pause' in $$props) $$invalidate(4, pause = $$props.pause);
+    		if ('durationUnit' in $$props) $$invalidate(5, durationUnit = $$props.durationUnit);
+    		if ('durationNum' in $$props) $$invalidate(6, durationNum = $$props.durationNum);
+    	};
+
+    	if ($$props && "$$inject" in $$props) {
+    		$$self.$inject_state($$props.$$inject);
+    	}
+
+    	return [color, unit, duration, size, pause, durationUnit, durationNum];
+    }
+
+    class Pulse extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+
+    		init(this, options, instance$1, create_fragment$1, safe_not_equal, {
+    			color: 0,
+    			unit: 1,
+    			duration: 2,
+    			size: 3,
+    			pause: 4
+    		});
+
+    		dispatch_dev("SvelteRegisterComponent", {
+    			component: this,
+    			tagName: "Pulse",
+    			options,
+    			id: create_fragment$1.name
+    		});
+    	}
+
+    	get color() {
+    		throw new Error("<Pulse>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set color(value) {
+    		throw new Error("<Pulse>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get unit() {
+    		throw new Error("<Pulse>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set unit(value) {
+    		throw new Error("<Pulse>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get duration() {
+    		throw new Error("<Pulse>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set duration(value) {
+    		throw new Error("<Pulse>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get size() {
+    		throw new Error("<Pulse>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set size(value) {
+    		throw new Error("<Pulse>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get pause() {
+    		throw new Error("<Pulse>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set pause(value) {
+    		throw new Error("<Pulse>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
     /* webviews\components\CodeFundi.svelte generated by Svelte v3.59.1 */
 
     const { console: console_1 } = globals;
@@ -3646,13 +4003,14 @@ var app = (function () {
 
     function get_each_context(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[7] = list[i];
+    	child_ctx[8] = list[i];
     	return child_ctx;
     }
 
-    // (327:2) {:else}
+    // (209:2) {:else}
     function create_else_block(ctx) {
     	let each_1_anchor;
+    	let current;
     	let each_value = /*messages*/ ctx[0];
     	validate_each_argument(each_value);
     	let each_blocks = [];
@@ -3660,6 +4018,10 @@ var app = (function () {
     	for (let i = 0; i < each_value.length; i += 1) {
     		each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
     	}
+
+    	const out = i => transition_out(each_blocks[i], 1, 1, () => {
+    		each_blocks[i] = null;
+    	});
 
     	const block = {
     		c: function create() {
@@ -3677,9 +4039,10 @@ var app = (function () {
     			}
 
     			insert_dev(target, each_1_anchor, anchor);
+    			current = true;
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*snarkdown, messages*/ 1) {
+    			if (dirty & /*messages, snarkdown*/ 1) {
     				each_value = /*messages*/ ctx[0];
     				validate_each_argument(each_value);
     				let i;
@@ -3689,19 +4052,41 @@ var app = (function () {
 
     					if (each_blocks[i]) {
     						each_blocks[i].p(child_ctx, dirty);
+    						transition_in(each_blocks[i], 1);
     					} else {
     						each_blocks[i] = create_each_block(child_ctx);
     						each_blocks[i].c();
+    						transition_in(each_blocks[i], 1);
     						each_blocks[i].m(each_1_anchor.parentNode, each_1_anchor);
     					}
     				}
 
-    				for (; i < each_blocks.length; i += 1) {
-    					each_blocks[i].d(1);
+    				group_outros();
+
+    				for (i = each_value.length; i < each_blocks.length; i += 1) {
+    					out(i);
     				}
 
-    				each_blocks.length = each_value.length;
+    				check_outros();
     			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+
+    			for (let i = 0; i < each_value.length; i += 1) {
+    				transition_in(each_blocks[i]);
+    			}
+
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			each_blocks = each_blocks.filter(Boolean);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				transition_out(each_blocks[i]);
+    			}
+
+    			current = false;
     		},
     		d: function destroy(detaching) {
     			destroy_each(each_blocks, detaching);
@@ -3713,56 +4098,44 @@ var app = (function () {
     		block,
     		id: create_else_block.name,
     		type: "else",
-    		source: "(327:2) {:else}",
+    		source: "(209:2) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (321:2) {#if messages.length === 0}
+    // (203:2) {#if messages.length === 0}
     function create_if_block(ctx) {
     	let div0;
     	let raw0_value = "Code Fundi 👷🏽‍♂️" + "";
-    	let t0;
-    	let br0;
-    	let br1;
-    	let t1;
+    	let t;
     	let div1;
     	let raw1_value = "To get started, type in the message box below or highlight your code then right click to access the options." + "";
 
     	const block = {
     		c: function create() {
     			div0 = element("div");
-    			t0 = space();
-    			br0 = element("br");
-    			br1 = element("br");
-    			t1 = space();
+    			t = space();
     			div1 = element("div");
-    			attr_dev(div0, "class", "banner svelte-ltn26k");
-    			add_location(div0, file, 321, 4, 9592);
-    			add_location(br0, file, 322, 4, 9653);
-    			add_location(br1, file, 322, 8, 9657);
-    			attr_dev(div1, "class", "welcome svelte-ltn26k");
-    			add_location(div1, file, 323, 4, 9667);
+    			attr_dev(div0, "class", "banner svelte-1xlez4g");
+    			add_location(div0, file, 203, 4, 4833);
+    			attr_dev(div1, "class", "welcome svelte-1xlez4g");
+    			add_location(div1, file, 205, 4, 4902);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div0, anchor);
     			div0.innerHTML = raw0_value;
-    			insert_dev(target, t0, anchor);
-    			insert_dev(target, br0, anchor);
-    			insert_dev(target, br1, anchor);
-    			insert_dev(target, t1, anchor);
+    			insert_dev(target, t, anchor);
     			insert_dev(target, div1, anchor);
     			div1.innerHTML = raw1_value;
     		},
     		p: noop$1,
+    		i: noop$1,
+    		o: noop$1,
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(div0);
-    			if (detaching) detach_dev(t0);
-    			if (detaching) detach_dev(br0);
-    			if (detaching) detach_dev(br1);
-    			if (detaching) detach_dev(t1);
+    			if (detaching) detach_dev(t);
     			if (detaching) detach_dev(div1);
     		}
     	};
@@ -3771,30 +4144,32 @@ var app = (function () {
     		block,
     		id: create_if_block.name,
     		type: "if",
-    		source: "(321:2) {#if messages.length === 0}",
+    		source: "(203:2) {#if messages.length === 0}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (328:4) {#each messages as message}
-    function create_each_block(ctx) {
+    // (220:44) 
+    function create_if_block_3(ctx) {
     	let div;
-    	let raw_value = t(/*message*/ ctx[7]) + "";
+    	let raw_value = t(/*message*/ ctx[8].data) + "";
 
     	const block = {
     		c: function create() {
     			div = element("div");
-    			attr_dev(div, "class", "message svelte-ltn26k");
-    			add_location(div, file, 328, 6, 9881);
+    			attr_dev(div, "class", "message-response svelte-1xlez4g");
+    			add_location(div, file, 220, 8, 5516);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
     			div.innerHTML = raw_value;
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty & /*messages*/ 1 && raw_value !== (raw_value = t(/*message*/ ctx[7]) + "")) div.innerHTML = raw_value;		},
+    			if (dirty & /*messages*/ 1 && raw_value !== (raw_value = t(/*message*/ ctx[8].data) + "")) div.innerHTML = raw_value;		},
+    		i: noop$1,
+    		o: noop$1,
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(div);
     		}
@@ -3802,9 +4177,215 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
+    		id: create_if_block_3.name,
+    		type: "if",
+    		source: "(220:44) ",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (214:43) 
+    function create_if_block_2(ctx) {
+    	let div1;
+    	let html_tag;
+    	let raw_value = t(/*message*/ ctx[8].data) + "";
+    	let t0;
+    	let div0;
+    	let pulse;
+    	let t1;
+    	let current;
+
+    	pulse = new Pulse({
+    			props: {
+    				size: "20",
+    				color: "#e81224",
+    				unit: "px",
+    				duration: "3s"
+    			},
+    			$$inline: true
+    		});
+
+    	const block = {
+    		c: function create() {
+    			div1 = element("div");
+    			html_tag = new HtmlTag(false);
+    			t0 = space();
+    			div0 = element("div");
+    			create_component(pulse.$$.fragment);
+    			t1 = space();
+    			html_tag.a = t0;
+    			attr_dev(div0, "class", "loader svelte-1xlez4g");
+    			add_location(div0, file, 215, 10, 5333);
+    			attr_dev(div1, "class", "message-response svelte-1xlez4g");
+    			add_location(div1, file, 214, 8, 5260);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div1, anchor);
+    			html_tag.m(raw_value, div1);
+    			append_dev(div1, t0);
+    			append_dev(div1, div0);
+    			mount_component(pulse, div0, null);
+    			append_dev(div1, t1);
+    			current = true;
+    		},
+    		p: function update(ctx, dirty) {
+    			if ((!current || dirty & /*messages*/ 1) && raw_value !== (raw_value = t(/*message*/ ctx[8].data) + "")) html_tag.p(raw_value);
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(pulse.$$.fragment, local);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(pulse.$$.fragment, local);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div1);
+    			destroy_component(pulse);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_2.name,
+    		type: "if",
+    		source: "(214:43) ",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (212:6) {#if message.type === 'Query'}
+    function create_if_block_1(ctx) {
+    	let div;
+    	let raw_value = /*message*/ ctx[8].data + "";
+
+    	const block = {
+    		c: function create() {
+    			div = element("div");
+    			attr_dev(div, "class", "message svelte-1xlez4g");
+    			add_location(div, file, 212, 8, 5158);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div, anchor);
+    			div.innerHTML = raw_value;
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty & /*messages*/ 1 && raw_value !== (raw_value = /*message*/ ctx[8].data + "")) div.innerHTML = raw_value;		},
+    		i: noop$1,
+    		o: noop$1,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_1.name,
+    		type: "if",
+    		source: "(212:6) {#if message.type === 'Query'}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (210:4) {#each messages as message}
+    function create_each_block(ctx) {
+    	let current_block_type_index;
+    	let if_block;
+    	let if_block_anchor;
+    	let current;
+    	const if_block_creators = [create_if_block_1, create_if_block_2, create_if_block_3];
+    	const if_blocks = [];
+
+    	function select_block_type_1(ctx, dirty) {
+    		if (/*message*/ ctx[8].type === 'Query') return 0;
+    		if (/*message*/ ctx[8].type === 'Waiting') return 1;
+    		if (/*message*/ ctx[8].type === 'Response') return 2;
+    		return -1;
+    	}
+
+    	if (~(current_block_type_index = select_block_type_1(ctx))) {
+    		if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+    	}
+
+    	const block = {
+    		c: function create() {
+    			if (if_block) if_block.c();
+    			if_block_anchor = empty();
+    		},
+    		m: function mount(target, anchor) {
+    			if (~current_block_type_index) {
+    				if_blocks[current_block_type_index].m(target, anchor);
+    			}
+
+    			insert_dev(target, if_block_anchor, anchor);
+    			current = true;
+    		},
+    		p: function update(ctx, dirty) {
+    			let previous_block_index = current_block_type_index;
+    			current_block_type_index = select_block_type_1(ctx);
+
+    			if (current_block_type_index === previous_block_index) {
+    				if (~current_block_type_index) {
+    					if_blocks[current_block_type_index].p(ctx, dirty);
+    				}
+    			} else {
+    				if (if_block) {
+    					group_outros();
+
+    					transition_out(if_blocks[previous_block_index], 1, 1, () => {
+    						if_blocks[previous_block_index] = null;
+    					});
+
+    					check_outros();
+    				}
+
+    				if (~current_block_type_index) {
+    					if_block = if_blocks[current_block_type_index];
+
+    					if (!if_block) {
+    						if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
+    						if_block.c();
+    					} else {
+    						if_block.p(ctx, dirty);
+    					}
+
+    					transition_in(if_block, 1);
+    					if_block.m(if_block_anchor.parentNode, if_block_anchor);
+    				} else {
+    					if_block = null;
+    				}
+    			}
+    		},
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(if_block);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(if_block);
+    			current = false;
+    		},
+    		d: function destroy(detaching) {
+    			if (~current_block_type_index) {
+    				if_blocks[current_block_type_index].d(detaching);
+    			}
+
+    			if (detaching) detach_dev(if_block_anchor);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
     		id: create_each_block.name,
     		type: "each",
-    		source: "(328:4) {#each messages as message}",
+    		source: "(210:4) {#each messages as message}",
     		ctx
     	});
 
@@ -3813,22 +4394,27 @@ var app = (function () {
 
     function create_fragment(ctx) {
     	let div1;
+    	let current_block_type_index;
+    	let if_block;
     	let t0;
     	let div0;
     	let form;
     	let input;
     	let t1;
     	let button;
+    	let current;
     	let mounted;
     	let dispose;
+    	const if_block_creators = [create_if_block, create_else_block];
+    	const if_blocks = [];
 
     	function select_block_type(ctx, dirty) {
-    		if (/*messages*/ ctx[0].length === 0) return create_if_block;
-    		return create_else_block;
+    		if (/*messages*/ ctx[0].length === 0) return 0;
+    		return 1;
     	}
 
-    	let current_block_type = select_block_type(ctx);
-    	let if_block = current_block_type(ctx);
+    	current_block_type_index = select_block_type(ctx);
+    	if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
 
     	const block = {
     		c: function create() {
@@ -3842,23 +4428,23 @@ var app = (function () {
     			button = element("button");
     			button.textContent = "Ask a question";
     			attr_dev(input, "type", "text");
-    			attr_dev(input, "class", "message-input svelte-ltn26k");
-    			add_location(input, file, 334, 6, 10056);
-    			attr_dev(button, "class", "send-button svelte-ltn26k");
-    			add_location(button, file, 335, 6, 10131);
-    			attr_dev(form, "class", "svelte-ltn26k");
-    			add_location(form, file, 333, 4, 9993);
-    			attr_dev(div0, "class", "message-box svelte-ltn26k");
-    			add_location(div0, file, 332, 2, 9962);
-    			attr_dev(div1, "class", "chat svelte-ltn26k");
-    			add_location(div1, file, 319, 0, 9537);
+    			attr_dev(input, "class", "message-input svelte-1xlez4g");
+    			add_location(input, file, 228, 6, 5726);
+    			attr_dev(button, "class", "send-button svelte-1xlez4g");
+    			add_location(button, file, 229, 6, 5801);
+    			attr_dev(form, "class", "svelte-1xlez4g");
+    			add_location(form, file, 227, 4, 5663);
+    			attr_dev(div0, "class", "message-box svelte-1xlez4g");
+    			add_location(div0, file, 226, 2, 5632);
+    			attr_dev(div1, "class", "chat svelte-1xlez4g");
+    			add_location(div1, file, 201, 0, 4778);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div1, anchor);
-    			if_block.m(div1, null);
+    			if_blocks[current_block_type_index].m(div1, null);
     			append_dev(div1, t0);
     			append_dev(div1, div0);
     			append_dev(div0, form);
@@ -3866,6 +4452,7 @@ var app = (function () {
     			set_input_value(input, /*newMessage*/ ctx[1]);
     			append_dev(form, t1);
     			append_dev(form, button);
+    			current = true;
 
     			if (!mounted) {
     				dispose = [
@@ -3878,27 +4465,48 @@ var app = (function () {
     			}
     		},
     		p: function update(ctx, [dirty]) {
-    			if (current_block_type === (current_block_type = select_block_type(ctx)) && if_block) {
-    				if_block.p(ctx, dirty);
-    			} else {
-    				if_block.d(1);
-    				if_block = current_block_type(ctx);
+    			let previous_block_index = current_block_type_index;
+    			current_block_type_index = select_block_type(ctx);
 
-    				if (if_block) {
+    			if (current_block_type_index === previous_block_index) {
+    				if_blocks[current_block_type_index].p(ctx, dirty);
+    			} else {
+    				group_outros();
+
+    				transition_out(if_blocks[previous_block_index], 1, 1, () => {
+    					if_blocks[previous_block_index] = null;
+    				});
+
+    				check_outros();
+    				if_block = if_blocks[current_block_type_index];
+
+    				if (!if_block) {
+    					if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
     					if_block.c();
-    					if_block.m(div1, t0);
+    				} else {
+    					if_block.p(ctx, dirty);
     				}
+
+    				transition_in(if_block, 1);
+    				if_block.m(div1, t0);
     			}
 
     			if (dirty & /*newMessage*/ 2 && input.value !== /*newMessage*/ ctx[1]) {
     				set_input_value(input, /*newMessage*/ ctx[1]);
     			}
     		},
-    		i: noop$1,
-    		o: noop$1,
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(if_block);
+    			current = true;
+    		},
+    		o: function outro(local) {
+    			transition_out(if_block);
+    			current = false;
+    		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(div1);
-    			if_block.d();
+    			if_blocks[current_block_type_index].d();
     			mounted = false;
     			run_all(dispose);
     		}
@@ -3916,7 +4524,7 @@ var app = (function () {
     }
 
     const fundiV1 = 'https://code-fundi-api.vercel.app';
-    const api_key = "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";
+    const api_key = "";
 
     function instance($$self, $$props, $$invalidate) {
     	let { $$slots: slots = {}, $$scope } = $$props;
@@ -3933,190 +4541,83 @@ var app = (function () {
     			$$invalidate(0, messages = [...messages, newMessage]);
     			$$invalidate(1, newMessage = "");
     		}
-    	} // var message = '';
-    	// if (event === undefined){
+    	}
 
-    	//   if (newMessage.trim() !== ""){
-    	//     message = {'type': 'debug', 'value': newMessage};
-    	//     console.log(message)
-    	//   }
-    	// }
-    	// message = event.data; // The json data that the extension sent
-    	// console.log(message)
-    	// switch (message.type) {
-    	//   case 'debug':
-    	//     messages = [...messages, `<span style="color:#808080; font-weight: bold;">Debug:</span> <br> ${message.value}`];
-    	//     // Loading message
-    	//     messages = [...messages, '<span style="color:#808080; font-weight: bold;">Thinking 🧠...</span>'];
-    	//     const response = axios({
-    	//       method: 'POST',
-    	//       url: `${fundiV1}/v1/fundi/debug`,
-    	//       data: {
-    	//         api_key: "",
-    	//         code_block: message.value
-    	//       },
-    	//       headers: {
-    	//         "Content-Type": "application/json",
-    	//       },
-    	//       responseType: 'stream'
-    	//     })
-    	//     .then(response => {
-    	//       messages.pop();
-    	//       messages = [...messages, JSON.stringify(response.data)];
-    	//     })
-    	//     .catch(error => {
-    	//       // Handle any errors
-    	//       console.error(error);
-    	//     });
-    	//     break;
-    	// }
-    	function askFundi() {
-    		$$invalidate(0, messages = [
-    			...messages,
-    			`<span style="color:#808080; font-weight: bold;">Ask:</span> <br> ${newMessage}`
-    		]);
+    	function fundiAPI(message, endpoint, data) {
+    		const endpointName = endpoint.charAt(0).toUpperCase() + endpoint.slice(1);
+
+    		const messageBody = {
+    			type: 'Query',
+    			data: `<span style="color:#808080; font-weight: bold;">${endpointName}: </span>   ${message.value}`
+    		};
+
+    		$$invalidate(0, messages = [...messages, messageBody]);
 
     		// Loading message
-    		$$invalidate(0, messages = [
-    			...messages,
-    			'<span style="color:#808080; font-weight: bold;">Thinking 🧠...</span>'
-    		]);
+    		const messageLoading = {
+    			type: 'Waiting',
+    			data: '<span style="color:#808080; font-weight: bold;">Thinking 🧠</span>'
+    		};
+
+    		$$invalidate(0, messages = [...messages, messageLoading]);
 
     		axios$1({
     			method: 'POST',
-    			url: `${fundiV1}/v1/fundi/ask`,
-    			data: {
-    				api_key,
-    				code_block: '',
-    				question: newMessage
-    			},
+    			url: `${fundiV1}/v1/fundi/${endpoint}`,
+    			data,
     			headers: { "Content-Type": "application/json" },
     			responseType: 'stream'
     		}).then(response => {
     			// convert response to markdown
-    			response = response.data.replace(/\n/g, '<br>').replace(/\t/g, '&emsp;').replace(/\r/g, '<br>');
+    			response = response.data.replace(/\n/g, ' ').replace(/\t/g, '&emsp;').replace(/\r/g, ' ');
 
     			messages.pop();
-    			$$invalidate(0, messages = [...messages, JSON.stringify(response)]);
+
+    			const messageResponse = {
+    				type: 'Response',
+    				data: JSON.stringify(response)
+    			};
+
+    			$$invalidate(0, messages = [...messages, messageResponse]);
     		}).catch(error => {
     			// Handle any errors
     			console.error(error);
     		});
     	}
 
+    	function askFundi() {
+    		let data = {
+    			api_key,
+    			code_block: '',
+    			question: newMessage
+    		};
+
+    		let message = { value: newMessage };
+    		fundiAPI(message, 'ask', data);
+    	}
+
     	onMount(() => {
     		window.addEventListener('message', event => {
     			const message = event.data; // The json data that the extension sent
     			console.log(message);
+    			let data = {};
 
     			switch (message.type) {
     				case 'debug':
-    					$$invalidate(0, messages = [
-    						...messages,
-    						`<span style="color:#808080; font-weight: bold;">Debug:</span> <br> ${message.value}`
-    					]);
-    					// Loading message
-    					$$invalidate(0, messages = [
-    						...messages,
-    						'<span style="color:#808080; font-weight: bold;">Thinking 🧠...</span>'
-    					]);
-    					axios$1({
-    						method: 'POST',
-    						url: `${fundiV1}/v1/fundi/debug`,
-    						data: { api_key, code_block: message.value },
-    						headers: { "Content-Type": "application/json" },
-    						responseType: 'stream'
-    					}).then(response => {
-    						// convert response to markdown
-    						response = response.data.replace(/\n/g, '<br>').replace(/\t/g, '&emsp;').replace(/\r/g, '<br>');
-
-    						messages.pop();
-    						$$invalidate(0, messages = [...messages, JSON.stringify(response)]);
-    					}).catch(error => {
-    						// Handle any errors
-    						console.error(error);
-    					});
+    					data = { api_key, code_block: message.value };
+    					fundiAPI(message, 'debug', data);
     					break;
     				case 'ask':
-    					$$invalidate(0, messages = [
-    						...messages,
-    						`<span style="color:#808080; font-weight: bold;">Ask:</span> <br> ${message.value}`
-    					]);
-    					// Loading message
-    					$$invalidate(0, messages = [
-    						...messages,
-    						'<span style="color:#808080; font-weight: bold;">Thinking 🧠...</span>'
-    					]);
-    					axios$1({
-    						method: 'POST',
-    						url: `${fundiV1}/v1/fundi/ask`,
-    						data: { api_key, code_block: message.value },
-    						headers: { "Content-Type": "application/json" },
-    						responseType: 'stream'
-    					}).then(response => {
-    						// convert response to markdown
-    						response = response.data.replace(/\n/g, '<br>').replace(/\t/g, '&emsp;').replace(/\r/g, '<br>');
-
-    						messages.pop();
-    						$$invalidate(0, messages = [...messages, JSON.stringify(response)]);
-    					}).catch(error => {
-    						// Handle any errors
-    						console.error(error);
-    					});
+    					data = { api_key, code_block: message.value };
+    					fundiAPI(message, 'ask', data);
     					break;
     				case 'explain':
-    					$$invalidate(0, messages = [
-    						...messages,
-    						`<span style="color:#808080; font-weight: bold;">Explain:</span> <br> ${message.value}`
-    					]);
-    					// Loading message
-    					$$invalidate(0, messages = [
-    						...messages,
-    						'<span style="color:#808080; font-weight: bold;">Thinking 🧠...</span>'
-    					]);
-    					axios$1({
-    						method: 'POST',
-    						url: `${fundiV1}/v1/fundi/explain`,
-    						data: { api_key, code_block: message.value },
-    						headers: { "Content-Type": "application/json" },
-    						responseType: 'stream'
-    					}).then(response => {
-    						// convert response to markdown
-    						response = response.data.replace(/\n/g, '<br>').replace(/\t/g, '&emsp;').replace(/\r/g, '<br>');
-
-    						messages.pop();
-    						$$invalidate(0, messages = [...messages, JSON.stringify(response)]);
-    					}).catch(error => {
-    						// Handle any errors
-    						console.error(error);
-    					});
+    					data = { api_key, code_block: message.value };
+    					fundiAPI(message, 'explain', data);
     					break;
     				case 'generate':
-    					$$invalidate(0, messages = [
-    						...messages,
-    						`<span style="color:#808080; font-weight: bold;">Generate:</span> <br> ${message.value}`
-    					]);
-    					// Loading message
-    					$$invalidate(0, messages = [
-    						...messages,
-    						'<span style="color:#808080; font-weight: bold;">Thinking 🧠...</span>'
-    					]);
-    					axios$1({
-    						method: 'POST',
-    						url: `${fundiV1}/v1/fundi/generate`,
-    						data: { api_key, code_block: message.value },
-    						headers: { "Content-Type": "application/json" },
-    						responseType: 'stream'
-    					}).then(response => {
-    						// convert response to markdown
-    						response = response.data.replace(/\n/g, '<br>').replace(/\t/g, '&emsp;').replace(/\r/g, '<br>');
-
-    						messages.pop();
-    						$$invalidate(0, messages = [...messages, JSON.stringify(response)]);
-    					}).catch(error => {
-    						// Handle any errors
-    						console.error(error);
-    					});
+    					data = { api_key, code_block: message.value };
+    					fundiAPI(message, 'generate', data);
     					break;
     			}
     		});
@@ -4139,12 +4640,14 @@ var app = (function () {
     		onMount,
     		axios: axios$1,
     		snarkdown: t,
+    		Pulse,
     		messages,
     		newMessage,
     		fundiV1,
     		api_key,
     		debug,
     		fundiDebug,
+    		fundiAPI,
     		askFundi
     	});
 
