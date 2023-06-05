@@ -1,10 +1,12 @@
 <script>
   import { onMount } from "svelte";
   import axios from 'axios';
+  import snarkdown from 'snarkdown';
 
   let messages = [];
   let newMessage = "";
   const fundiV1 = 'https://code-fundi-api.vercel.app';
+  const api_key = "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";
 
   function debug(){
       tsvscode.postMessage({
@@ -60,6 +62,39 @@
     // }
   }
 
+  function askFundi() {
+    messages = [...messages, `<span style="color:#808080; font-weight: bold;">Ask:</span> <br> ${newMessage}`];
+
+    // Loading message
+    messages = [...messages, '<span style="color:#808080; font-weight: bold;">Thinking 🧠...</span>'];
+
+    axios({
+      method: 'POST',
+      url: `${fundiV1}/v1/fundi/ask`,
+      data: {
+        api_key: api_key,
+        code_block: '',
+        question: newMessage
+      },
+      headers: {
+        "Content-Type": "application/json",
+      },
+      responseType: 'stream'
+    })
+    .then(response => {
+      // convert response to markdown
+      response = response.data.replace(/\n/g, '<br>').replace(/\t/g, '&emsp;').replace(/\r/g, '<br>');
+      messages.pop();
+      messages = [...messages, JSON.stringify(response)];
+    })
+    .catch(error => {
+      // Handle any errors
+      console.error(error);
+    });
+
+        
+  }
+
   onMount(() => {
     window.addEventListener('message', event => {
       const message = event.data; // The json data that the extension sent
@@ -72,11 +107,129 @@
           // Loading message
           messages = [...messages, '<span style="color:#808080; font-weight: bold;">Thinking 🧠...</span>'];
 
-          const response = axios({
+          axios({
             method: 'POST',
             url: `${fundiV1}/v1/fundi/debug`,
             data: {
-              api_key: "",
+              api_key: api_key,
+              code_block: message.value
+            },
+            headers: {
+              "Content-Type": "application/json",
+            },
+            responseType: 'stream'
+          })
+          .then(response => {
+            // convert response to markdown
+            response = response.data.replace(/\n/g, '<br>').replace(/\t/g, '&emsp;').replace(/\r/g, '<br>');
+            messages.pop();
+            messages = [...messages, JSON.stringify(response)];
+          })
+          .catch(error => {
+            // Handle any errors
+            console.error(error);
+          });
+          break;
+
+        case 'ask':
+          messages = [...messages, `<span style="color:#808080; font-weight: bold;">Ask:</span> <br> ${message.value}`];
+
+          // Loading message
+          messages = [...messages, '<span style="color:#808080; font-weight: bold;">Thinking 🧠...</span>'];
+
+          axios({
+            method: 'POST',
+            url: `${fundiV1}/v1/fundi/ask`,
+            data: {
+              api_key: api_key,
+              code_block: message.value
+            },
+            headers: {
+              "Content-Type": "application/json",
+            },
+            responseType: 'stream'
+          })
+          .then(response => {
+            // convert response to markdown
+            response = response.data.replace(/\n/g, '<br>').replace(/\t/g, '&emsp;').replace(/\r/g, '<br>');
+            messages.pop();
+            messages = [...messages, JSON.stringify(response)];
+          })
+          .catch(error => {
+            // Handle any errors
+            console.error(error);
+          });
+          break;
+
+        case 'explain':
+          messages = [...messages, `<span style="color:#808080; font-weight: bold;">Explain:</span> <br> ${message.value}`];
+
+          // Loading message
+          messages = [...messages, '<span style="color:#808080; font-weight: bold;">Thinking 🧠...</span>'];
+
+          axios({
+            method: 'POST',
+            url: `${fundiV1}/v1/fundi/explain`,
+            data: {
+              api_key: api_key,
+              code_block: message.value
+            },
+            headers: {
+              "Content-Type": "application/json",
+            },
+            responseType: 'stream'
+          })
+          .then(response => {
+            // convert response to markdown
+            response = response.data.replace(/\n/g, '<br>').replace(/\t/g, '&emsp;').replace(/\r/g, '<br>');
+            messages.pop();
+            messages = [...messages, JSON.stringify(response)];
+          })
+          .catch(error => {
+            // Handle any errors
+            console.error(error);
+          });
+          break;
+
+        case 'generate':
+          messages = [...messages, `<span style="color:#808080; font-weight: bold;">Generate:</span> <br> ${message.value}`];
+
+          // Loading message
+          messages = [...messages, '<span style="color:#808080; font-weight: bold;">Thinking 🧠...</span>'];
+
+          axios({
+            method: 'POST',
+            url: `${fundiV1}/v1/fundi/generate`,
+            data: {
+              api_key: api_key,
+              code_block: message.value
+            },
+            headers: {
+              "Content-Type": "application/json",
+            },
+            responseType: 'stream'
+          })
+          .then(response => {
+            // convert response to markdown
+            response = response.data.replace(/\n/g, '<br>').replace(/\t/g, '&emsp;').replace(/\r/g, '<br>');
+            messages.pop();
+            messages = [...messages, JSON.stringify(response)];
+          })
+          .catch(error => {
+            // Handle any errors
+            console.error(error);
+          });
+          break;
+          messages = [...messages, `<span style="color:#808080; font-weight: bold;">Complete:</span> <br> ${message.value}`];
+
+          // Loading message
+          messages = [...messages, '<span style="color:#808080; font-weight: bold;">Thinking 🧠...</span>'];
+
+          axios({
+            method: 'POST',
+            url: `${fundiV1}/v1/fundi/complete`,
+            data: {
+              api_key: api_key,
               code_block: message.value
             },
             headers: {
@@ -173,14 +326,14 @@
     }</div>   
   {:else}
     {#each messages as message}
-      <div class="message">{@html message}</div>
+      <div class="message">{@html snarkdown(message)}</div>
     {/each}
   {/if}
 
   <div class="message-box">
     <form on:submit|preventDefault={() => newMessage = ''}>
       <input type="text" class="message-input" bind:value={newMessage} />
-      <button class="send-button" on:click={fundiDebug}>Send a message</button>
+      <button class="send-button" on:click={askFundi}>Ask a question</button>
     </form>
   </div>
 </div>

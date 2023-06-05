@@ -4,6 +4,9 @@ dependencies:
   axios:
     specifier: ^1.4.0
     version: 1.4.0
+  snarkdown:
+    specifier: ^2.0.0
+    version: 2.0.0
 
 devDependencies:
   '@rollup/plugin-commonjs':
@@ -2829,6 +2832,10 @@ packages:
   /smob@0.0.6:
     resolution: {integrity: sha512-V21+XeNni+tTyiST1MHsa84AQhT1aFZipzPpOFAVB8DkHzwJyjjAmt9bgwnuZiZWnIbMo2duE29wybxv/7HWUw==}
     dev: true
+
+  /snarkdown@2.0.0:
+    resolution: {integrity: sha512-MgL/7k/AZdXCTJiNgrO7chgDqaB9FGM/1Tvlcenenb7div6obaDATzs16JhFyHHBGodHT3B7RzRc5qk8pFhg3A==}
+    dev: false
 
   /sorcery@0.11.0:
     resolution: {integrity: sha512-J69LQ22xrQB1cIFJhPfgtLuI6BpWRiWu1Y3vSsIwK/eAScqJxd/+CJlUuHQRdX2C9NGFamq+KqNywGgaThwfHw==}

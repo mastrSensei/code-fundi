@@ -40,6 +40,22 @@
       {
         "command": "code-fundi.codeDebug",
         "title": "Debug selection"
+      },
+      {
+        "command": "code-fundi.codeAsk",
+        "title": "Ask a question"
+      },
+      {
+        "command": "code-fundi.codeExplain",
+        "title": "Explain selection"
+      },
+      {
+        "command": "code-fundi.codeGenerate",
+        "title": "Generate new code"
+      },
+      {
+        "command": "code-fundi.codeComplete",
+        "title": "Complete selected code"
       }
     ],
     "menus": {
@@ -57,6 +73,18 @@
         },
         {
           "command": "code-fundi.codeDebug",
+          "group": "code-fundi.group"
+        },
+        {
+          "command": "code-fundi.codeAsk",
+          "group": "code-fundi.group"
+        },
+        {
+          "command": "code-fundi.codeExplain",
+          "group": "code-fundi.group"
+        },
+        {
+          "command": "code-fundi.codeGenerate",
           "group": "code-fundi.group"
         }
       ]
@@ -109,6 +137,7 @@
     "webpack-cli": "^5.0.2"
   },
   "dependencies": {
-    "axios": "^1.4.0"
+    "axios": "^1.4.0",
+    "snarkdown": "^2.0.0"
   }
 }
