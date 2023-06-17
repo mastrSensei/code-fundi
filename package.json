@@ -56,6 +56,10 @@
       {
         "command": "code-fundi.codeComplete",
         "title": "Complete selected code"
+      },
+      {
+        "command": "code-fundi.authenticate",
+        "title": "Authenticate"
       }
     ],
     "menus": {
@@ -85,6 +89,10 @@
         },
         {
           "command": "code-fundi.codeGenerate",
+          "group": "code-fundi.group"
+        },
+        {
+          "command": "code-fundi.authenticate",
           "group": "code-fundi.group"
         }
       ]
@@ -137,6 +145,8 @@
     "webpack-cli": "^5.0.2"
   },
   "dependencies": {
+    "@supabase/auth-helpers-sveltekit": "^0.10.1",
+    "@supabase/supabase-js": "^2.25.0",
     "axios": "^1.4.0",
     "snarkdown": "^2.0.0",
     "svelte-loading-spinners": "^0.3.4"

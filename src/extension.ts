@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 import { CodeFundiPanel } from './CodeFundiPanel';
 import { SidebarProvider } from './SidebarProvider';
+import { authenticate } from './authenticate';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -25,6 +26,15 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.showInformationMessage('Hello World from Code Fundi 👷🏽‍♂️!');
 
 		CodeFundiPanel.createOrShow(context.extensionUri);
+		})
+	);
+
+	context.subscriptions.push(vscode.commands.registerCommand('code-fundi.authenticate', () => {
+		// The code you place here will be executed every time your command is executed
+		// Display a message box to the user
+		vscode.window.showInformationMessage('Auth successful');
+		authenticate();
+		
 		})
 	);
 
