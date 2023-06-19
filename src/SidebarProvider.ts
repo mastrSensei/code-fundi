@@ -53,7 +53,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       vscode.Uri.joinPath(this._extensionUri, "media", "reset.css")
     );
     const scriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "out", "compiled/CodeFundi.js")
+      vscode.Uri.joinPath(this._extensionUri, "out", "compiled/SideBar.js")
     );
     const styleMainUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, "out", "compiled/sidebar.css")

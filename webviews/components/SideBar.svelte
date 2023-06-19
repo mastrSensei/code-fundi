@@ -3,23 +3,78 @@
   import axios from 'axios';
   import snarkdown from 'snarkdown';
   import { Pulse } from 'svelte-loading-spinners';
+  import { createClient } from '@supabase/supabase-js';
+  import { SvelteToast , toast } from '@zerodevx/svelte-toast';
 
+  const supabaseUrl = '';
+  const supabaseKey = '';
+  const supabase = createClient(supabaseUrl, supabaseKey);
+
+  let email = '';
+  let password = '';
   let messages = [];
   let newMessage = "";
-  const fundiV1 = 'https://code-fundi-api.vercel.app';
+  const fundiV1 = '';
   const api_key = "";
+  let session = "";
 
-  function debug(){
-      tsvscode.postMessage({
-        type: 'debug',
-        value: newMessage
+  async function handleSignup() {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
       });
+
+      if (error) {
+        console.error('Signup error:', error.message);
+        toast.push(`Signup error: ${error.message}`);
+        return;
+      }
+
+      console.log('Signup success:', data);
+      toast.push(`Signup successful`);
+    } catch (error) {
+      console.error('Signup error:', error.message);
+      toast.push(`Signup error: ${error.message}`);
+    }
   }
 
-  function fundiDebug() {
-    if (newMessage.trim() !== "") {
-      messages = [...messages, newMessage];
-      newMessage = "";
+  async function handleLogin() {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        console.error('Login error:', error.message);
+        toast.push(`Login error: ${error.message}`);
+        return;
+      }
+
+      session = data.session;
+      console.log('Login success:', data);
+      toast.push(`Login successful`);
+    } catch (error) {
+      console.error('Login error:', error.message);
+      toast.push(`Login error: ${error.message}`);
+    }
+  }
+
+  async function handleOAuth(provider) {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: provider
+      });
+
+      if (error) {
+        console.error('Login error:', error.message);
+        return;
+      }
+
+      console.log('Login success:', data);
+    } catch (error) {
+      console.error('Login error:', error.message);
     }
   }
 
@@ -199,13 +254,37 @@
   }
 </style>
 
+<SvelteToast options={{ theme: { '--toastBarHeight': 0 } }}/>
+
 <div class="chat">
-  {#if messages.length === 0}
+  {#if messages.length === 0 && session !== ""}
     <div class="banner">{@html "Code Fundi 👷🏽‍♂️" }</div>
       
     <div class="welcome">{@html 
       "To get started, type in the message box below or highlight your code then right click to access the options."
-    }</div>   
+    }</div>  
+  {:else if messages.length === 0 && session === ""}
+    <div class="banner">{@html "Code Fundi 👷🏽‍♂️" }</div>
+        
+    <div class="welcome">{@html 
+      "To get started, sign in / sign up below"
+    }
+      <form>
+        <div class="banner">
+          <button type="button">Login with GitHub</button>
+          <br/>
+          <button type="button">Login with Google</button>
+        </div> 
+        <br/>
+        <input type="email" id="email" bind:value={email} placeholder="Email" />
+
+        <input type="password" id="password" bind:value={password} placeholder="Password" />
+
+        <button type="button" on:click={handleLogin}>Sign In</button>
+        <button type="button" on:click={handleSignup}>Sign Up</button>
+      </form>
+
+    </div> 
   {:else}
     {#each messages as message}
 

@@ -1,11 +1,11 @@
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
 
-export class CodeFundiPanel {
+export class SideBarPanel {
   /**
    * Track the currently panel. Only allow a single panel to exist at a time.
    */
-  public static currentPanel: CodeFundiPanel | undefined;
+  public static currentPanel: SideBarPanel | undefined;
 
   public static readonly viewType = "code-fundi";
 
@@ -19,15 +19,15 @@ export class CodeFundiPanel {
       : undefined;
 
     // If we already have a panel, show it.
-    if (CodeFundiPanel.currentPanel) {
-      CodeFundiPanel.currentPanel._panel.reveal(column);
-      CodeFundiPanel.currentPanel._update();
+    if (SideBarPanel.currentPanel) {
+      SideBarPanel.currentPanel._panel.reveal(column);
+      SideBarPanel.currentPanel._update();
       return;
     }
 
     // Otherwise, create a new panel.
     const panel = vscode.window.createWebviewPanel(
-      CodeFundiPanel.viewType,
+      SideBarPanel.viewType,
       "Code Fundi",
       column || vscode.ViewColumn.One,
       {
@@ -42,16 +42,16 @@ export class CodeFundiPanel {
       }
     );
 
-    CodeFundiPanel.currentPanel = new CodeFundiPanel(panel, extensionUri);
+    SideBarPanel.currentPanel = new SideBarPanel(panel, extensionUri);
   }
 
   public static kill() {
-    CodeFundiPanel.currentPanel?.dispose();
-    CodeFundiPanel.currentPanel = undefined;
+    SideBarPanel.currentPanel?.dispose();
+    SideBarPanel.currentPanel = undefined;
   }
 
   public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
-    CodeFundiPanel.currentPanel = new CodeFundiPanel(panel, extensionUri);
+    SideBarPanel.currentPanel = new SideBarPanel(panel, extensionUri);
   }
 
   private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
@@ -80,7 +80,7 @@ export class CodeFundiPanel {
   }
 
   public dispose() {
-    CodeFundiPanel.currentPanel = undefined;
+    SideBarPanel.currentPanel = undefined;
 
     // Clean up our resources
     this._panel.dispose();
@@ -125,7 +125,7 @@ export class CodeFundiPanel {
   private _getHtmlForWebview(webview: vscode.Webview) {
     // // And the uri we use to load this script in the webview
     const scriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "out", "compiled/CodeFundi.js")
+      vscode.Uri.joinPath(this._extensionUri, "out", "compiled/SideBar.js")
     );
 
     // Local path to css styles
