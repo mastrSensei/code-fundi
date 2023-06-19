@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount } from 'svelte';
   import axios from 'axios';
   import snarkdown from 'snarkdown';
   import { Pulse } from 'svelte-loading-spinners';
@@ -13,10 +13,10 @@
   let email = '';
   let password = '';
   let messages = [];
-  let newMessage = "";
+  let newMessage = '';
   const fundiV1 = '';
-  const api_key = "";
-  let session = "";
+  const api_key = '';
+  let session = '';
 
   async function handleSignup() {
     try {
@@ -69,12 +69,15 @@
 
       if (error) {
         console.error('Login error:', error.message);
+        toast.push(`Login error: ${error.message}`);
         return;
       }
 
       console.log('Login success:', data);
+      toast.push(`${provider} login successful`);
     } catch (error) {
       console.error('Login error:', error.message);
+      toast.push(`Login error: ${error.message}`);
     }
   }
 
@@ -92,7 +95,7 @@
       url: `${fundiV1}/v1/fundi/${endpoint}`,
       data: data,
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       responseType: 'stream'
     })
@@ -252,36 +255,69 @@
 		width: 100%;
     margin-bottom: 8px;
   }
+
+  .send-button:disabled {
+    padding: 8px 16px;
+    background-color: #808080;
+    color: white;
+    cursor: not-allowed;
+		width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .auth-button {
+    padding: 8px 16px;
+    background-color: rgba(0, 113, 243, 0);
+    border: 1px solid;
+    border-image: linear-gradient(to right, #0070F3, #e81224);
+    border-image-slice: 1;
+    color: white;
+    cursor: pointer;
+		width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .auth-button:hover {
+    padding: 8px 16px;
+    background-color: #0071f380;
+    border: 1px solid;
+    border-image: linear-gradient(to bottom, #0070F3, #e81224);
+    border-image-slice: 1;
+    color: white;
+    cursor: pointer;
+		width: 100%;
+    margin-bottom: 8px;
+  }
 </style>
 
 <SvelteToast options={{ theme: { '--toastBarHeight': 0 } }}/>
 
-<div class="chat">
-  {#if messages.length === 0 && session !== ""}
-    <div class="banner">{@html "Code Fundi 👷🏽‍♂️" }</div>
+<div class='chat'>
+  {#if messages.length === 0 && session !== ''}
+    <div class='banner'>{@html 'Code Fundi 👷🏽‍♂️' }</div>
       
-    <div class="welcome">{@html 
-      "To get started, type in the message box below or highlight your code then right click to access the options."
+    <div class='welcome'>{@html 
+      'To get started, type in the message box below or highlight your code then right click to access the options.'
     }</div>  
-  {:else if messages.length === 0 && session === ""}
-    <div class="banner">{@html "Code Fundi 👷🏽‍♂️" }</div>
+  {:else if messages.length === 0 && session === ''}
+    <div class='banner'>{@html 'Code Fundi 👷🏽‍♂️' }</div>
         
-    <div class="welcome">{@html 
-      "To get started, sign in / sign up below"
+    <div class='welcome'>{@html 
+      'To get started, sign in / sign up below'
     }
-      <form>
-        <div class="banner">
-          <button type="button">Login with GitHub</button>
-          <br/>
-          <button type="button">Login with Google</button>
-        </div> 
+      <div class='banner'>
+        <button type='button' on:click={() => handleOAuth('github')}>Login with GitHub</button>
         <br/>
-        <input type="email" id="email" bind:value={email} placeholder="Email" />
+        <button type='button' on:click={() => handleOAuth('google')}>Login with Google</button>
+      </div> 
+      <br/>
+      <form>
+        <input type='email' id='email' bind:value={email} placeholder='Email' />
 
-        <input type="password" id="password" bind:value={password} placeholder="Password" />
+        <input type='password' id='password' bind:value={password} placeholder='Password' />
 
-        <button type="button" on:click={handleLogin}>Sign In</button>
-        <button type="button" on:click={handleSignup}>Sign Up</button>
+        <button type='button' class='auth-button' on:click={handleLogin}>Sign In</button>
+        <button type='button' class='auth-button' on:click={handleSignup}>Sign Up</button>
       </form>
 
     </div> 
@@ -289,24 +325,29 @@
     {#each messages as message}
 
       {#if message.type === 'Query'}
-        <div class="message">{@html message.data}</div>
+        <div class='message'>{@html message.data}</div>
       {:else if message.type === 'Waiting'}
-        <div class="message-response">{@html snarkdown(message.data)}
-          <div class="loader">
-            <Pulse size="20" color="#e81224" unit="px" duration="3s" />
+        <div class='message-response'>{@html snarkdown(message.data)}
+          <div class='loader'>
+            <Pulse size='20' color='#e81224' unit='px' duration='3s' />
           </div>
         </div>
       {:else if message.type === 'Response'}
-        <div class="message-response">{@html snarkdown(message.data)}</div>
+        <div class='message-response'>{@html snarkdown(message.data)}</div>
       {/if}
       
     {/each}
   {/if}
 
-  <div class="message-box">
+  <div class='message-box'>
     <form on:submit|preventDefault={() => newMessage = ''}>
-      <input type="text" class="message-input" bind:value={newMessage} />
-      <button class="send-button" on:click={askFundi}>Ask a question</button>
+      {#if session === ''}
+        <input disabled type='text' class='message-input' bind:value={newMessage} placeholder='Login to continue' />
+        <button disabled class='send-button' on:click={askFundi}>Ask a question</button>
+      {:else if session !== ''}
+        <input type='text' class='message-input' bind:value={newMessage} placeholder='Type in your question' />
+        <button class='send-button' on:click={askFundi}>Ask a question</button>
+      {/if}
     </form>
   </div>
 </div>
