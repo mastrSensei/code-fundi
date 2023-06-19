@@ -150,6 +150,9 @@ export class SideBarPanel {
     // Use a nonce to only allow specific scripts to be run
     const nonce = getNonce();
 
+    // Get Theme
+    const theme = vscode.workspace.getConfiguration().get('myExtension.theme');
+
     // Final
 //     return `<!DOCTYPE html>
 // 			<html lang="en">
@@ -196,6 +199,13 @@ export class SideBarPanel {
 				<link href="${stylesMainUri}" rel="stylesheet">
         <script nonce="${nonce}">
             const tsvscode = acquireVsCodeApi();
+            const theme = '${theme}';
+            new App({
+              target: document.querySelector('#app'),
+              props: {
+                theme
+              }
+            });
         </script>
 			</head>
       <body>

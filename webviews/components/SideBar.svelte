@@ -5,6 +5,8 @@
   import { Pulse } from 'svelte-loading-spinners';
   import { createClient } from '@supabase/supabase-js';
   import { SvelteToast , toast } from '@zerodevx/svelte-toast';
+  import { TokenManager } from "../../src/tokenManager.ts";
+  export let theme;
 
   const supabaseUrl = '';
   const supabaseKey = '';
@@ -16,7 +18,8 @@
   let newMessage = '';
   const fundiV1 = '';
   const api_key = '';
-  let session = '';
+  let session = TokenManager.getToken();
+  let bg_colour = '';
 
   async function handleSignup() {
     try {
@@ -52,7 +55,7 @@
         return;
       }
 
-      session = data.session;
+      TokenManager.setToken(data.session);
       console.log('Login success:', data);
       toast.push(`Login successful`);
     } catch (error) {
@@ -125,6 +128,13 @@
   }
 
   onMount(() => {
+    if (theme === 'light'){
+      bg_colour = '#808080';
+    }
+    else{
+      bg_colour = '#ffffff';
+    }
+
     window.addEventListener('message', event => {
       const message = event.data; // The json data that the extension sent
       console.log(message)
@@ -136,7 +146,7 @@
               api_key: api_key,
               code_block: message.value
             };
-          fundiAPI(message, 'debug', data);
+          fundiAPI(message, message.type, data);
           break;
 
         case 'ask':
@@ -144,7 +154,7 @@
               api_key: api_key,
               code_block: message.value
             };
-          fundiAPI(message, 'ask', data);
+          fundiAPI(message, message.type, data);
           break;
 
         case 'explain':
@@ -152,7 +162,7 @@
               api_key: api_key,
               code_block: message.value
             };
-          fundiAPI(message, 'explain', data);
+          fundiAPI(message, message.type, data);
           break;
 
         case 'generate':
@@ -160,7 +170,7 @@
               api_key: api_key,
               code_block: message.value
             };
-          fundiAPI(message, 'generate', data);
+          fundiAPI(message, message.type, data);
           break;
       }
     });
@@ -178,7 +188,7 @@
   .banner {
     margin-bottom: 8px;
     padding: 8px;
-    color: #ffffff;
+    color: var(bg_colour);
 		text-align: center;
     font-weight: bold;
     font-size: x-large;
@@ -187,7 +197,7 @@
   .welcome {
     margin-bottom: 8px;
     padding: 8px;
-    color: #ffffff;
+    color: var(bg_colour);
 		text-align: center;
   }
 
@@ -196,7 +206,7 @@
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    color: #ffffff;
+    color: var(bg_colour);
   }
 
   .message-response {
@@ -204,7 +214,7 @@
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    color: #ffffff;
+    color: var(bg_colour);
     background-color: rgba(0, 112, 243, 0.3);
   }
 
@@ -234,11 +244,11 @@
 
   .send-button {
     padding: 8px 16px;
-    background-color: #0071f300;
+    background-color: #0071f380;
     border: 2px solid;
     border-image: linear-gradient(to right, #0070F3, #e81224);
     border-image-slice: 1;
-    color: white;
+    color: var(bg_colour);
     cursor: pointer;
 		width: 100%;
     margin-bottom: 8px;
@@ -246,11 +256,11 @@
 
   .send-button:hover {
     padding: 8px 16px;
-    background-color: #0071f38a;
+    background-color: #0071f3;
     border: 2.5px solid;
     border-image: linear-gradient(to right, #0070F3, #e81224);
     border-image-slice: 1;
-    color: white;
+    color: var(bg_colour);
     cursor: pointer;
 		width: 100%;
     margin-bottom: 8px;
@@ -267,11 +277,11 @@
 
   .auth-button {
     padding: 8px 16px;
-    background-color: rgba(0, 113, 243, 0);
+    background-color: #0071f380;
     border: 1px solid;
     border-image: linear-gradient(to right, #0070F3, #e81224);
     border-image-slice: 1;
-    color: white;
+    color: var(bg_colour);
     cursor: pointer;
 		width: 100%;
     margin-bottom: 8px;
@@ -279,11 +289,11 @@
 
   .auth-button:hover {
     padding: 8px 16px;
-    background-color: #0071f380;
+    background-color: #0071f3;
     border: 1px solid;
     border-image: linear-gradient(to bottom, #0070F3, #e81224);
     border-image-slice: 1;
-    color: white;
+    color: var(bg_colour);
     cursor: pointer;
 		width: 100%;
     margin-bottom: 8px;
@@ -312,12 +322,16 @@
       </div> 
       <br/>
       <form>
-        <input type='email' id='email' bind:value={email} placeholder='Email' />
+        <input type='email' id='email' class='message-input' bind:value={email} placeholder='Email' />
 
-        <input type='password' id='password' bind:value={password} placeholder='Password' />
+        <input type='password' id='password' class='message-input' bind:value={password} placeholder='Password' />
 
         <button type='button' class='auth-button' on:click={handleLogin}>Sign In</button>
-        <button type='button' class='auth-button' on:click={handleSignup}>Sign Up</button>
+        <a href='https://codefundi.app/login' target='_blank'>
+          <button type='button' class='auth-button'>
+            Sign Up
+          </button>
+        </a>
       </form>
 
     </div> 

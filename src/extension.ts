@@ -3,10 +3,13 @@
 import * as vscode from 'vscode';
 import { SideBarPanel } from './SideBarPanel';
 import { SidebarProvider } from './SidebarProvider';
+import { TokenManager } from "./tokenManager";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+	
+	TokenManager.globalState = context.globalState;
 
 	const sidebarProvider = new SidebarProvider(context.extensionUri);
 	context.subscriptions.push(
@@ -22,7 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('code-fundi.helloWorld', () => {
 		// The code you place here will be executed every time your command is executed
 		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Code Fundi 👷🏽‍♂️!');
+		vscode.window.showInformationMessage("token value is: " + TokenManager.getToken());
 
 		SideBarPanel.createOrShow(context.extensionUri);
 		})
