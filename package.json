@@ -117,6 +117,8 @@
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.1.0",
+    "@rollup/plugin-html": "^1.0.2",
+    "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.0.2",
     "@rollup/plugin-terser": "^0.4.1",
     "@rollup/plugin-typescript": "^11.1.0",
@@ -149,6 +151,7 @@
     "@supabase/supabase-js": "^2.25.0",
     "axios": "^1.4.0",
     "snarkdown": "^2.0.0",
-    "svelte-loading-spinners": "^0.3.4"
+    "svelte-loading-spinners": "^0.3.4",
+    "@zerodevx/svelte-toast": "^0.9.3"
   }
 }

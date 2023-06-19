@@ -7,6 +7,9 @@ dependencies:
   '@supabase/supabase-js':
     specifier: ^2.25.0
     version: 2.25.0
+  '@zerodevx/svelte-toast':
+    specifier: ^0.9.3
+    version: 0.9.3(svelte@3.59.1)
   axios:
     specifier: ^1.4.0
     version: 1.4.0
@@ -21,6 +24,12 @@ devDependencies:
   '@rollup/plugin-commonjs':
     specifier: ^24.1.0
     version: 24.1.0(rollup@2.78.1)
+  '@rollup/plugin-html':
+    specifier: ^1.0.2
+    version: 1.0.2(rollup@2.78.1)
+  '@rollup/plugin-json':
+    specifier: ^6.0.0
+    version: 6.0.0(rollup@2.78.1)
   '@rollup/plugin-node-resolve':
     specifier: ^15.0.2
     version: 15.0.2(rollup@2.78.1)
@@ -449,6 +458,31 @@ packages:
       glob: 8.1.0
       is-reference: 1.2.1
       magic-string: 0.27.0
+      rollup: 2.78.1
+    dev: true
+
+  /@rollup/plugin-html@1.0.2(rollup@2.78.1):
+    resolution: {integrity: sha512-jGqb45BPj5kwvb/bq1jIzUDLebsm1xmfnY1rwgTIZyjpsMyMKLuQO27n4z5qv6kZmxqxh+CBRD7d1rjAu85Uzg==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0||^3.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      rollup: 2.78.1
+    dev: true
+
+  /@rollup/plugin-json@6.0.0(rollup@2.78.1):
+    resolution: {integrity: sha512-i/4C5Jrdr1XUarRhVu27EEwjt4GObltD7c+MkCIpO2QIbojw8MUs+CCTqOphQi3Qtg1FLmYt+l+6YeoIf51J7w==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0||^3.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      '@rollup/pluginutils': 5.0.2(rollup@2.78.1)
       rollup: 2.78.1
     dev: true
 
@@ -1042,6 +1076,14 @@ packages:
   /@xtuc/long@4.2.2:
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
     dev: true
+
+  /@zerodevx/svelte-toast@0.9.3(svelte@3.59.1):
+    resolution: {integrity: sha512-VPKWR4A9y01fyXRscu9HiTj7tV2hFrpRKZvGwMmaPXfHIXR1D9+NNsz0HXcQ7qZ0C5UaHS3n9uNtPtIcAXT7RQ==}
+    peerDependencies:
+      svelte: ^3.57.0
+    dependencies:
+      svelte: 3.59.1
+    dev: false
 
   /acorn-import-assertions@1.8.0(acorn@8.8.2):
     resolution: {integrity: sha512-m7VZ3jwz4eK6A4Vtt8Ew1/mNbP24u0FhdyfA7fSvnJR6LMdfOYnmuIrrJAgrYfYJ10F/otaHTtrtrtmHdMNzEw==}
