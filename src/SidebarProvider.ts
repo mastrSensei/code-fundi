@@ -48,10 +48,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         case "tokenFetch": {
           // Get the token from the globalState
           const token = await TokenManager.getToken();
-          console.log("Fetch");
-          console.log(token);
-          vscode.window.showInformationMessage(`Fetch successful ${token}`);
-          return token;
+          const responseMessage = { type: 'tokenFetchResponse', value: token };
+          webviewView.webview.postMessage(responseMessage);
         }
         // case "signOut": {
         //   // Reset the token in the globalState

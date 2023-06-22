@@ -45,8 +45,7 @@
         return;
       }
 
-      console.log('Signup success:', data);
-      toast.push(`Signup successful`);
+      toast.push(`Signup successful. You can sign in now`);
     } catch (error) {
       console.error('Signup error:', error.message);
       toast.push(`Signup error: ${error.message}`);
@@ -67,8 +66,7 @@
       }
 
       session = data.session;
-      saveToken(data.session)
-      console.log('Login success:', data);
+      saveToken(data.session);
       toast.push(`Login successful`);
     } catch (error) {
       console.error('Login error:', error.message);
@@ -92,7 +90,6 @@
         return;
       }
 
-      console.log('Login success:', data);
       toast.push(`${provider} login successful`);
     } catch (error) {
       console.error('Login error:', error.message);
@@ -152,32 +149,17 @@
       bg_colour = '#ffffff';
     }
 
-    async function fetchToken() {
-      const token = tsvscode.postMessage({
-          type: 'tokenFetch',
-          value: ''
+    function fetchToken() {
+      tsvscode.postMessage({
+          type: 'tokenFetch'
         });
-
-        console.log(token)
-        return token;
     }
 
-    console.log(fetchToken())
-    // Token fetch
-    fetchToken().then(res => {
-      console.log(`RES: ${res}`)
-      if(res === undefined) {
-        session = '';
-      }
-      else {
-        session = res;
-      }
-    });
+    fetchToken();
 
     // Message listener
     window.addEventListener('message', event => {
       const message = event.data; // The json data that the extension sent
-      console.log(message)
       let data = {};
 
       switch (message.type) {
@@ -217,6 +199,16 @@
               code_block: message.value
             };
           fundiAPI(message, message.type, data);
+          break;
+        case 'tokenFetchResponse':
+          const token = message.value;
+          // Handle the token received from the extension
+          if (token === undefined) {
+            session = '';
+          }
+          else {
+            session = token;
+          }
           break;
       }
     });
