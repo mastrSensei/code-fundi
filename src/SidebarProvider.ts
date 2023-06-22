@@ -51,6 +51,20 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           const responseMessage = { type: 'tokenFetchResponse', value: token };
           webviewView.webview.postMessage(responseMessage);
         }
+        case "saveMessages": {
+          if (!data.value) {
+            return;
+          }
+          const messages = data.value;
+          // Save the token to the globalState
+          await TokenManager.setMessages(messages);
+        }
+        case "getMessages": {
+          // Get the token from the globalState
+          const messages = await TokenManager.getMessages();
+          const messageResponseMessage = { type: 'getMessagesResponse', value: messages };
+          webviewView.webview.postMessage(messageResponseMessage);
+        }
         // case "signOut": {
         //   // Reset the token in the globalState
         //   TokenManager.setToken("");

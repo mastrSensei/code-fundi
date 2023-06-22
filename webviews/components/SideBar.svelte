@@ -25,10 +25,27 @@
     activeTab = tab;
   }
 
+  function fetchData() {
+    tsvscode.postMessage({
+        type: 'tokenFetch'
+      });
+
+    tsvscode.postMessage({
+        type: 'getMessages'
+      });
+  }
+
   function saveToken(token) {
     tsvscode.postMessage({
 					type: 'authenticate',
 					value: token
+				});
+  }
+
+  function saveMessages(message) {
+    tsvscode.postMessage({
+					type: 'saveMessages',
+					value: message
 				});
   }
 
@@ -121,6 +138,7 @@
       messages.pop();
       const messageResponse = {type: 'Response', data: JSON.stringify(response)};
       messages = [...messages, messageResponse];
+      saveMessages(messages);
     })
     .catch(error => {
       // Handle any errors
@@ -149,13 +167,7 @@
       bg_colour = '#ffffff';
     }
 
-    function fetchToken() {
-      tsvscode.postMessage({
-          type: 'tokenFetch'
-        });
-    }
-
-    fetchToken();
+    fetchData();
 
     // Message listener
     window.addEventListener('message', event => {
@@ -208,6 +220,16 @@
           }
           else {
             session = token;
+          }
+          break;
+        case 'getMessagesResponse':
+          const messageResponse = message.value;
+          // Handle the token received from the extension
+          if (messageResponse === undefined) {
+            messages = [];
+          }
+          else {
+            messages = messageResponse;
           }
           break;
       }

@@ -10,6 +10,7 @@ import { TokenManager } from "./TokenManager";
 export function activate(context: vscode.ExtensionContext) {
 	
 	TokenManager.globalState = context.globalState;
+	TokenManager.workspaceState = context.workspaceState;
 
 	const sidebarProvider = new SidebarProvider(context.extensionUri);
 	context.subscriptions.push(
