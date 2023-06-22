@@ -34,10 +34,6 @@
     },
     "commands": [
       {
-        "command": "code-fundi.helloWorld",
-        "title": "Hello World"
-      },
-      {
         "command": "code-fundi.codeDebug",
         "title": "Debug selection"
       },
@@ -56,10 +52,6 @@
       {
         "command": "code-fundi.codeComplete",
         "title": "Complete selected code"
-      },
-      {
-        "command": "code-fundi.authenticate",
-        "title": "Authenticate"
       }
     ],
     "menus": {
@@ -71,10 +63,6 @@
         }
       ],
       "code-fundi.submenu": [
-        {
-          "command": "code-fundi.helloWorld",
-          "group": "code-fundi.group"
-        },
         {
           "command": "code-fundi.codeDebug",
           "group": "code-fundi.group"
@@ -89,10 +77,6 @@
         },
         {
           "command": "code-fundi.codeGenerate",
-          "group": "code-fundi.group"
-        },
-        {
-          "command": "code-fundi.authenticate",
           "group": "code-fundi.group"
         }
       ]
@@ -149,9 +133,10 @@
   "dependencies": {
     "@supabase/auth-helpers-sveltekit": "^0.10.1",
     "@supabase/supabase-js": "^2.25.0",
+    "@zerodevx/svelte-toast": "^0.9.3",
     "axios": "^1.4.0",
+    "polka": "^0.5.2",
     "snarkdown": "^2.0.0",
-    "svelte-loading-spinners": "^0.3.4",
-    "@zerodevx/svelte-toast": "^0.9.3"
+    "svelte-loading-spinners": "^0.3.4"
   }
 }

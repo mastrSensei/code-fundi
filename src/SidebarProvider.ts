@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
+import { TokenManager } from "./TokenManager";
 
 export class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
@@ -35,6 +36,29 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           vscode.window.showErrorMessage(data.value);
           break;
         }
+        case "authenticate": {
+          if (!data.value) {
+            return;
+          }
+          const token = data.value;
+          // Save the token to the globalState
+          await TokenManager.setToken(token);
+          vscode.window.showInformationMessage(`Login successful ${token}`);
+        }
+        case "tokenFetch": {
+          // Get the token from the globalState
+          const token = await TokenManager.getToken();
+          console.log("Fetch");
+          console.log(token);
+          vscode.window.showInformationMessage(`Fetch successful ${token}`);
+          return token;
+        }
+        // case "signOut": {
+        //   // Reset the token in the globalState
+        //   TokenManager.setToken("");
+        //   vscode.window.showInformationMessage(`Logout successful`);
+        // }
+        
         // case "tokens": {
         //   await Util.globalState.update(accessTokenKey, data.accessToken);
         //   await Util.globalState.update(refreshTokenKey, data.refreshToken);
@@ -65,6 +89,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     // Use a nonce to only allow a specific script to be run.
     const nonce = getNonce();
 
+    // Get Theme
+    const theme = vscode.workspace.getConfiguration().get('myExtension.theme');
+
     return `<!DOCTYPE html>
 			<html lang="en">
 			<head>
@@ -82,6 +109,13 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         <link href="${styleMainUri}" rel="stylesheet">
         <script nonce="${nonce}">
           const tsvscode = acquireVsCodeApi();
+            const theme = '${theme}';
+            new App({
+              target: document.querySelector('#app'),
+              props: {
+                theme
+              }
+            });
         </script>
 			</head>
       <body>

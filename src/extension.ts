@@ -3,7 +3,7 @@
 import * as vscode from 'vscode';
 import { SideBarPanel } from './SideBarPanel';
 import { SidebarProvider } from './SidebarProvider';
-import { TokenManager } from "./tokenManager";
+import { TokenManager } from "./TokenManager";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -19,23 +19,10 @@ export function activate(context: vscode.ExtensionContext) {
 		)
 	);
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	context.subscriptions.push(vscode.commands.registerCommand('code-fundi.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage("token value is: " + TokenManager.getToken());
-
-		SideBarPanel.createOrShow(context.extensionUri);
-		})
-	);
-
-	context.subscriptions.push(vscode.commands.registerCommand('code-fundi.authenticate', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Auth successful');
-		
+	context.subscriptions.push(vscode.commands.registerCommand('code-fundi.authenticate', async function () {
+			// The code you place here will be executed every time your command is executed
+			const token = TokenManager.getToken();
+			vscode.window.showInformationMessage(`Auth successful ${token}`);
 		})
 	);
 
