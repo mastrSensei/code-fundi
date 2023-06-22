@@ -5,17 +5,18 @@
   import { Pulse } from 'svelte-loading-spinners';
   import { createClient } from '@supabase/supabase-js';
   import { SvelteToast , toast } from '@zerodevx/svelte-toast';
+  import * as routes from '../routes.json'
   export let theme;
 
-  const supabaseUrl = '';
-  const supabaseKey = '';
+  const supabaseUrl = routes.supabaseUrl;
+  const supabaseKey = routes.supabaseKey;
   const supabase = createClient(supabaseUrl, supabaseKey);
 
   let email = '';
   let password = '';
   let messages = [];
   let newMessage = '';
-  const fundiV1 = '';
+  const fundiV1 = routes.fundiV1;
   const api_key = '';
   let session = '';
   let bg_colour = '';
