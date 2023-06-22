@@ -7,16 +7,16 @@
   import { SvelteToast , toast } from '@zerodevx/svelte-toast';
   export let theme;
 
-  const supabaseUrl = 'https://aphveiimvupdhrheiipr.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwaHZlaWltdnVwZGhyaGVpaXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODQ5MzcyMTAsImV4cCI6MjAwMDUxMzIxMH0.8nBluaty9z8Qe-Fd4fSnE48sYKyQo_mmCwMnLGU7sWQ';
+  const supabaseUrl = '';
+  const supabaseKey = '';
   const supabase = createClient(supabaseUrl, supabaseKey);
 
   let email = '';
   let password = '';
   let messages = [];
   let newMessage = '';
-  const fundiV1 = 'https://code-fundi-api.vercel.app';
-  const api_key = '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';
+  const fundiV1 = '';
+  const api_key = '';
   let session = '';
   let bg_colour = '';
   let activeTab = 'chat';
