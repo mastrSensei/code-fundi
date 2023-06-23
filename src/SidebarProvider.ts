@@ -44,12 +44,14 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           // Save the token to the globalState
           await TokenManager.setToken(token);
           vscode.window.showInformationMessage(`Login successful ${token}`);
+          break;
         }
         case "tokenFetch": {
           // Get the token from the globalState
           const token = await TokenManager.getToken();
           const responseMessage = { type: 'tokenFetchResponse', value: token };
           webviewView.webview.postMessage(responseMessage);
+          break;
         }
         case "saveMessages": {
           if (!data.value) {
@@ -58,19 +60,22 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           const messages = data.value;
           // Save the token to the globalState
           await TokenManager.setMessages(messages);
+          break;
         }
         case "getMessages": {
           // Get the token from the globalState
           const messages = await TokenManager.getMessages();
           const messageResponseMessage = { type: 'getMessagesResponse', value: messages };
           webviewView.webview.postMessage(messageResponseMessage);
+          break;
         }
-        // case "signOut": {
-        //   // Reset the token in the globalState
-        //   await TokenManager.setToken("");
-        //   await TokenManager.setMessages("");
-        //   vscode.window.showInformationMessage(`Logout successful`);
-        // }
+        case "signOut": {
+          // Reset the token in the globalState
+          await TokenManager.setToken("");
+          await TokenManager.setMessages("");
+          vscode.window.showInformationMessage(`Logout successful`);
+          break;
+        }
         
         // case "tokens": {
         //   await Util.globalState.update(accessTokenKey, data.accessToken);

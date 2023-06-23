@@ -50,6 +50,12 @@
 				});
   }
 
+  function signOut() {
+    tsvscode.postMessage({
+        type: 'signOut'
+      });
+  }
+
   async function handleSignup() {
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -387,6 +393,10 @@
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div class="tab {activeTab === 'history' ? 'active' : ''}" on:click={() => changeTab('history')}>
     History
+  </div>
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <div class="tab {activeTab === 'signOut' ? 'active' : ''}" on:click={signOut}>
+    Log out
   </div>
 </div>
 
