@@ -99,26 +99,10 @@
   }
 
   async function handleOAuth(provider) {
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: provider,
-        options: {
-          skipBrowserRedirect: false,
-          redirectTo: 'http://localhost:3000/oauth/redirect'
-        }
-      });
-
-      if (error) {
-        console.error('Login error:', error.message);
-        toast.push(`Login error: ${error.message}`);
-        return;
-      }
-
-      toast.push(`${provider} login successful`);
-    } catch (error) {
-      console.error('Login error:', error.message);
-      toast.push(`Login error: ${error.message}`);
-    }
+    tsvscode.postMessage({
+					type: 'oAuthenticate',
+					value: provider
+				});
   }
 
   function fundiAPI(message, endpoint, data) {
@@ -141,7 +125,7 @@
     })
     .then(response => {
       // convert response to markdown
-      response = response.data.replace(/\n/g, ' ').replace(/\t/g, '&emsp;').replace(/\r/g, ' ')
+      response = response.data;
       messages.pop();
       const messageResponse = {type: 'Response', data: JSON.stringify(response)};
       messages = [...messages, messageResponse];
@@ -312,9 +296,6 @@
   .send-button {
     padding: 8px 16px;
     background-color: #0071f380;
-    border: 2px solid;
-    border-image: linear-gradient(to right, #0070F3, #e81224);
-    border-image-slice: 1;
     color: var(bg_colour);
     cursor: pointer;
 		width: 100%;
@@ -324,9 +305,6 @@
   .send-button:hover {
     padding: 8px 16px;
     background-color: #0071f3;
-    border: 2.5px solid;
-    border-image: linear-gradient(to right, #0070F3, #e81224);
-    border-image-slice: 1;
     color: var(bg_colour);
     cursor: pointer;
 		width: 100%;
@@ -385,6 +363,10 @@
 
 <SvelteToast options={{ theme: { '--toastBarHeight': 0 } }}/>
 
+<svelte:head>
+  <meta http-equiv="Content-Security-Policy" content="frame-src 'self' https://aphveiimvupdhrheiipr.supabase.co/">
+</svelte:head>
+
 <div class="tab-container">
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div class="tab {activeTab === 'chat' ? 'active' : ''}" on:click={() => changeTab('chat')}>
@@ -402,39 +384,12 @@
 
 {#if activeTab === 'chat'}
   <div class='chat'>
-    {#if messages.length === 0 && session !== ''}
+    {#if messages.length === 0}
       <div class='banner'>{@html 'Code Fundi 👷🏽‍♂️' }</div>
         
       <div class='welcome'>{@html 
         'To get started, type in the message box below or highlight your code then right click to access the options.'
-      }</div>  
-    {:else if messages.length === 0 && session === ''}
-      <div class='banner'>{@html 'Code Fundi 👷🏽‍♂️' }</div>
-          
-      <div class='welcome'>{@html 
-        'To get started, sign in / sign up below'
-      }
-        <div class='banner'>
-          <button type='button' on:click={() => handleOAuth('github')}>Login with GitHub</button>
-          <br/>
-          <button type='button' on:click={() => handleOAuth('google')}>Login with Google</button>
-        </div> 
-        <br/>
-        <form>
-          <input type='email' id='email' class='message-input' bind:value={email} placeholder='Email' />
-
-          <input type='password' id='password' class='message-input' bind:value={password} placeholder='Password' />
-
-          <button type='button' class='auth-button' on:click={handleLogin}>Sign In</button>
-          <button type='button' class='auth-button' on:click={handleSignup}>Sign Up</button>
-          <!-- <a href='https://codefundi.app/login' target='_blank'>
-            <button type='button' class='auth-button'>
-              Sign Up
-            </button>
-          </a> -->
-        </form>
-
-      </div> 
+      }</div>
     {:else}
       {#each messages as message}
 
@@ -455,13 +410,8 @@
 
     <div class='message-box'>
       <form on:submit|preventDefault={() => newMessage = ''}>
-        {#if session === ''}
-          <input disabled type='text' class='message-input' bind:value={newMessage} placeholder='Login to continue' />
-          <button disabled class='send-button' on:click={askFundi}>Ask a question</button>
-        {:else if session !== ''}
-          <input type='text' class='message-input' bind:value={newMessage} placeholder='Type in your question' />
-          <button class='send-button' on:click={askFundi}>Ask a question</button>
-        {/if}
+        <input type='text' class='message-input' bind:value={newMessage} placeholder='Type in your question' />
+        <button class='send-button' on:click={askFundi}>Ask a question</button>
       </form>
     </div>
   </div>
@@ -478,9 +428,9 @@
         'To get started, sign in / sign up below'
       }
         <div class='banner'>
-          <button type='button' on:click={() => handleOAuth('github')}>Login with GitHub</button>
+          <!-- <button type='button' on:click={() => handleOAuth('github')}>Login with GitHub</button>
           <br/>
-          <button type='button' on:click={() => handleOAuth('google')}>Login with Google</button>
+          <button type='button' on:click={() => handleOAuth('google')}>Login with Google</button> -->
         </div> 
         <br/>
         <form>
@@ -489,11 +439,7 @@
           <input type='password' id='password' class='message-input' bind:value={password} placeholder='Password' />
 
           <button type='button' class='auth-button' on:click={handleLogin}>Sign In</button>
-          <a href='https://codefundi.app/login' target='_blank'>
-            <button type='button' class='auth-button'>
-              Sign Up
-            </button>
-          </a>
+          <button type='button' class='auth-button' on:click={handleSignup}>Sign Up</button>
         </form>
 
       </div>
