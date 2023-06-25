@@ -34,10 +34,6 @@
     },
     "commands": [
       {
-        "command": "code-fundi.helloWorld",
-        "title": "Hello World"
-      },
-      {
         "command": "code-fundi.codeDebug",
         "title": "Debug selection"
       },
@@ -68,10 +64,6 @@
       ],
       "code-fundi.submenu": [
         {
-          "command": "code-fundi.helloWorld",
-          "group": "code-fundi.group"
-        },
-        {
           "command": "code-fundi.codeDebug",
           "group": "code-fundi.group"
         },
@@ -92,7 +84,7 @@
     "submenus": [
       {
         "id": "code-fundi.submenu",
-        "label": "✨Code Fundi"
+        "label": "👷‍♂️ Code Fundi"
       }
     ]
   },
@@ -109,6 +101,8 @@
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.1.0",
+    "@rollup/plugin-html": "^1.0.2",
+    "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.0.2",
     "@rollup/plugin-terser": "^0.4.1",
     "@rollup/plugin-typescript": "^11.1.0",
@@ -137,6 +131,9 @@
     "webpack-cli": "^5.0.2"
   },
   "dependencies": {
+    "@supabase/auth-helpers-sveltekit": "^0.10.1",
+    "@supabase/supabase-js": "^2.25.0",
+    "@zerodevx/svelte-toast": "^0.9.3",
     "axios": "^1.4.0",
     "snarkdown": "^2.0.0",
     "svelte-loading-spinners": "^0.3.4"

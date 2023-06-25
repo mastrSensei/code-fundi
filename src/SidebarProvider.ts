@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
+import { TokenManager } from "./TokenManager";
+// import { oAuth } from "./oAuth";
 
 export class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
@@ -35,6 +37,57 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           vscode.window.showErrorMessage(data.value);
           break;
         }
+        case "authenticate": {
+          if (!data.value) {
+            return;
+          }
+          const token = data.value;
+          // Save the token to the globalState
+          await TokenManager.setToken(token);
+          vscode.window.showInformationMessage(`Login successful`);
+          break;
+        }
+        case "oAuthenticate": {
+          // Reset the token in the globalState
+          const provider = data.value;
+          // const token = await oAuth(provider);
+          // Save the token to the globalState
+          // await TokenManager.setToken(token);
+          vscode.window.showInformationMessage(`Login successful`);
+          break;
+        }
+        case "tokenFetch": {
+          // Get the token from the globalState
+          const token = await TokenManager.getToken();
+          const responseMessage = { type: 'tokenFetchResponse', value: token };
+          webviewView.webview.postMessage(responseMessage);
+          break;
+        }
+        case "saveMessages": {
+          if (!data.value) {
+            return;
+          }
+          const messages = data.value;
+          // Save the token to the globalState
+          await TokenManager.setMessages(messages);
+          break;
+        }
+        case "getMessages": {
+          // Get the token from the globalState
+          const messages = await TokenManager.getMessages();
+          const messageResponseMessage = { type: 'getMessagesResponse', value: messages };
+          webviewView.webview.postMessage(messageResponseMessage);
+          break;
+        }
+        case "signOut": {
+          // Reset the token in the globalState
+          await TokenManager.setToken("");
+          await TokenManager.setMessages("");
+          this.reloadWebview(); // Reload the webview
+          vscode.window.showInformationMessage(`Logout successful`);
+          break;
+        }
+        
         // case "tokens": {
         //   await Util.globalState.update(accessTokenKey, data.accessToken);
         //   await Util.globalState.update(refreshTokenKey, data.refreshToken);
@@ -42,6 +95,12 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         // }
       }
     });
+  }
+
+  private reloadWebview() {
+    if (this._view) {
+      this._view.webview.html = this._getHtmlForWebview(this._view.webview);
+    }
   }
 
   public revive(panel: vscode.WebviewView) {
@@ -53,7 +112,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       vscode.Uri.joinPath(this._extensionUri, "media", "reset.css")
     );
     const scriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "out", "compiled/CodeFundi.js")
+      vscode.Uri.joinPath(this._extensionUri, "out", "compiled/SideBar.js")
     );
     const styleMainUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, "out", "compiled/sidebar.css")
@@ -64,6 +123,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
     // Use a nonce to only allow a specific script to be run.
     const nonce = getNonce();
+
+    // Get Theme
+    const theme = vscode.workspace.getConfiguration().get('myExtension.theme');
 
     return `<!DOCTYPE html>
 			<html lang="en">
@@ -82,6 +144,13 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         <link href="${styleMainUri}" rel="stylesheet">
         <script nonce="${nonce}">
           const tsvscode = acquireVsCodeApi();
+            const theme = '${theme}';
+            new App({
+              target: document.querySelector('#app'),
+              props: {
+                theme
+              }
+            });
         </script>
 			</head>
       <body>

@@ -5,6 +5,8 @@ import terser from "@rollup/plugin-terser";
 import sveltePreprocess from "svelte-preprocess";
 import typescript from "@rollup/plugin-typescript";
 import css from 'rollup-plugin-import-css';
+import json from "@rollup/plugin-json";
+import html from '@rollup/plugin-html';
 import path from "path";
 import fs from "fs";
 
@@ -50,7 +52,11 @@ export default fs
           sourceMap: true,
           inlineSources: true,
         }),
-
+        json(),
+        html({
+          // Specify the contentSecurityPolicy option
+          contentSecurityPolicy: "frame-src 'self' https://aphveiimvupdhrheiipr.supabase.co/;",
+        }),
         // In dev mode, call `npm run start` once
         // the bundle has been generated
         // !production && serve(),
