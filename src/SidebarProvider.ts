@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
 import { TokenManager } from "./TokenManager";
+// import { oAuth } from "./oAuth";
 
 export class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
@@ -43,7 +44,16 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           const token = data.value;
           // Save the token to the globalState
           await TokenManager.setToken(token);
-          vscode.window.showInformationMessage(`Login successful ${token}`);
+          vscode.window.showInformationMessage(`Login successful`);
+          break;
+        }
+        case "oAuthenticate": {
+          // Reset the token in the globalState
+          const provider = data.value;
+          // const token = await oAuth(provider);
+          // Save the token to the globalState
+          // await TokenManager.setToken(token);
+          vscode.window.showInformationMessage(`Login successful`);
           break;
         }
         case "tokenFetch": {
@@ -73,6 +83,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           // Reset the token in the globalState
           await TokenManager.setToken("");
           await TokenManager.setMessages("");
+          this.reloadWebview(); // Reload the webview
           vscode.window.showInformationMessage(`Logout successful`);
           break;
         }
@@ -84,6 +95,12 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         // }
       }
     });
+  }
+
+  private reloadWebview() {
+    if (this._view) {
+      this._view.webview.html = this._getHtmlForWebview(this._view.webview);
+    }
   }
 
   public revive(panel: vscode.WebviewView) {
