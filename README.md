@@ -5,7 +5,7 @@
  </br>
 </p>
   <p align="center">
-    <a href="https://github.com/Code-Fundi/code-fundi/stars">
+    <a href="https://github.com/Code-Fundi/code-fundi/stargazers">
       <img alt="Stars" src="https://img.shields.io/github/stars/Code-Fundi/code-fundi?color=0088ff" />
     </a>
   </p>
