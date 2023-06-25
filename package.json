@@ -135,7 +135,6 @@
     "@supabase/supabase-js": "^2.25.0",
     "@zerodevx/svelte-toast": "^0.9.3",
     "axios": "^1.4.0",
-    "polka": "^0.5.2",
     "snarkdown": "^2.0.0",
     "svelte-loading-spinners": "^0.3.4"
   }
