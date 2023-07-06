@@ -17,7 +17,7 @@
   let messages = [];
   let newMessage = '';
   const fundiV1 = routes.fundiV1;
-  const api_key = '';
+  const api_key = 'x';
   let session = '';
   let bg_colour = '';
   let activeTab = 'chat';
@@ -107,34 +107,51 @@
 
   function fundiAPI(message, endpoint, data) {
     const endpointName = endpoint.charAt(0).toUpperCase() + endpoint.slice(1);
-    const messageBody = {type: 'Query', data: `<span style="color:#808080; font-weight: bold;">${endpointName}: </span>   ${message.value}`};
+    const messageBody = {type: 'Query', data: `<span style="color:#808080; font-weight: bold;">${endpointName}: </span> </br> ${message.value} `};
     messages = [...messages, messageBody];
 
     // Loading message
     const messageLoading = {type: 'Waiting', data: '<span style="color:#808080; font-weight: bold;">Thinking 🧠</span>'};
     messages = [...messages, messageLoading];
 
-    axios({
+    let res = "";
+
+    fetch(`${fundiV1}/v1/fundi/${endpoint}`, {
       method: 'POST',
-      url: `${fundiV1}/v1/fundi/${endpoint}`,
-      data: data,
       headers: {
         'Content-Type': 'application/json',
+        'Transfer-Encoding': 'chunked',
+        'X-Content-Type-Options': 'nosniff'
       },
-      responseType: 'stream'
+      body: JSON.stringify(data)
     })
-    .then(response => {
-      // convert response to markdown
-      response = response.data;
-      messages.pop();
-      const messageResponse = {type: 'Response', data: JSON.stringify(response)};
-      messages = [...messages, messageResponse];
-      saveMessages(messages);
-    })
-    .catch(error => {
-      // Handle any errors
-      console.error(error);
-    });
+      .then(response => {
+        const reader = response.body.getReader();
+
+        function read() {
+          reader.read().then(({ done, value }) => {
+            if (done) {
+              // Stream finished, perform any necessary actions
+              saveMessages(messages);
+              return;
+            }
+
+            const chunk = new TextDecoder('utf-8').decode(value);
+            res = res + chunk;
+            messages.pop();
+            const messageResponse = {type: 'Response', data: res};
+            messages = [...messages, messageResponse];
+
+            read();
+          });
+        }
+
+        read();
+      })
+      .catch(error => {
+        console.error('Request error:', error);
+        // Handle any errors from the request
+      });
   } 
 
   function askFundi() {
@@ -394,7 +411,7 @@
       {#each messages as message}
 
         {#if message.type === 'Query'}
-          <div class='message'>{@html message.data}</div>
+          <div class='message'>{@html snarkdown(message.data)}</div>
         {:else if message.type === 'Waiting'}
           <div class='message-response'>{@html snarkdown(message.data)}
             <div class='loader'>
