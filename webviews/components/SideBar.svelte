@@ -1,6 +1,5 @@
 <script>
   import { onMount } from 'svelte';
-  import axios from 'axios';
   import snarkdown from 'snarkdown';
   import { Pulse } from 'svelte-loading-spinners';
   import { createClient } from '@supabase/supabase-js';
@@ -315,13 +314,23 @@
     margin-bottom: 8px;
   }
 
+  .chat-input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+		width: 100%;
+    margin: 8px;
+  }
+
   .send-button {
-    padding: 8px 16px;
+    padding: 8px;
     background-color: #0071f380;
     color: var(bg_colour);
     cursor: pointer;
-		width: 100%;
-    margin-bottom: 8px;
+		width: 40px;
+    margin: 8px;
+    border-radius: 4px;
   }
 
   .send-button:hover {
@@ -329,7 +338,7 @@
     background-color: #0071f3;
     color: var(bg_colour);
     cursor: pointer;
-		width: 100%;
+		width: 40px;
     margin-bottom: 8px;
   }
 
@@ -338,7 +347,7 @@
     background-color: #808080;
     color: white;
     cursor: not-allowed;
-		width: 100%;
+		width: 40px;
     margin-bottom: 8px;
   }
 
@@ -380,6 +389,11 @@
 
   .tab.active {
     text-decoration: underline;
+  }
+
+  .form-container {
+    display: flex;
+    align-items: center;
   }
 </style>
 
@@ -431,9 +445,9 @@
     {/if}
 
     <div class='message-box'>
-      <form on:submit|preventDefault={() => newMessage = ''}>
-        <input type='text' class='message-input' bind:value={newMessage} placeholder='Type in your question' />
-        <button class='send-button' on:click={askFundi}>Ask a question</button>
+      <form on:submit|preventDefault={() => newMessage = ''} class='form-container'>
+        <input type='text' class='chat-input' bind:value={newMessage} placeholder='Type in your question' />
+        <button class='send-button' on:click={askFundi}>🔍</button>
       </form>
     </div>
   </div>
