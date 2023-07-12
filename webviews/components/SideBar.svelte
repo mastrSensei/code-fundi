@@ -157,6 +157,7 @@
   function askFundi() {
     let data = {
         api_key: api_key,
+        model: "text-davinci-003",
         code_block: '',
         question: newMessage
       };
@@ -186,6 +187,7 @@
         case 'debug':
           data = {
               api_key: api_key,
+              model: "text-davinci-003",
               code_block: message.value
             };
           fundiAPI(message, message.type, data);
@@ -194,6 +196,7 @@
         case 'ask':
           data = {
               api_key: api_key,
+              model: "text-davinci-003",
               code_block: message.value
             };
           fundiAPI(message, message.type, data);
@@ -202,6 +205,7 @@
         case 'explain':
           data = {
               api_key: api_key,
+              model: "text-davinci-003",
               code_block: message.value
             };
           fundiAPI(message, message.type, data);
@@ -210,6 +214,7 @@
         case 'generate':
           data = {
               api_key: api_key,
+              model: "text-davinci-003",
               code_block: message.value
             };
           fundiAPI(message, message.type, data);
