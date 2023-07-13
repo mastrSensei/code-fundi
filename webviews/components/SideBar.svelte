@@ -298,8 +298,8 @@
     display: flex;
     flex-direction: column; /* Update: Change the flex direction to column */
     margin-top: 16px;
+    margin-bottom: 8px;
     align-items: flex-end; /* Update: Align items to the start */
-    margin-top: auto;
   }
 
   .message-box form {
@@ -320,7 +320,9 @@
     border: 1px solid #ccc;
     border-radius: 4px;
 		width: 100%;
-    margin: 8px;
+    height: 40px; 
+    min-height: 40px;
+    max-height: 120px;
   }
 
   .send-button {
@@ -329,17 +331,18 @@
     color: var(bg_colour);
     cursor: pointer;
 		width: 40px;
-    margin: 8px;
+    margin-left: 8px;
     border-radius: 4px;
   }
 
   .send-button:hover {
-    padding: 8px 16px;
+    padding: 8px;
     background-color: #0071f3;
     color: var(bg_colour);
     cursor: pointer;
 		width: 40px;
-    margin-bottom: 8px;
+    margin-left: 8px;
+    border-radius: 4px;
   }
 
   .send-button:disabled {
@@ -446,7 +449,7 @@
 
     <div class='message-box'>
       <form on:submit|preventDefault={() => newMessage = ''} class='form-container'>
-        <input type='text' class='chat-input' bind:value={newMessage} placeholder='Type in your question' />
+        <textarea type='text' class='chat-input' bind:value={newMessage} placeholder='Type in your question' />
         <button class='send-button' on:click={askFundi}>🔍</button>
       </form>
     </div>
