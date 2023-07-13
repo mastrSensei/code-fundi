@@ -20,6 +20,7 @@
   let session = '';
   let bg_colour = '';
   let activeTab = 'chat';
+  let model = 'text-davinci-003';
 
   function changeTab(tab) {
     activeTab = tab;
@@ -156,7 +157,7 @@
   function askFundi() {
     let data = {
         api_key: api_key,
-        model: "text-davinci-003",
+        model: model,
         code_block: '',
         question: newMessage
       };
@@ -186,7 +187,7 @@
         case 'debug':
           data = {
               api_key: api_key,
-              model: "text-davinci-003",
+              model: model,
               code_block: message.value
             };
           fundiAPI(message, message.type, data);
@@ -195,7 +196,7 @@
         case 'ask':
           data = {
               api_key: api_key,
-              model: "text-davinci-003",
+              model: model,
               code_block: message.value
             };
           fundiAPI(message, message.type, data);
@@ -204,7 +205,7 @@
         case 'explain':
           data = {
               api_key: api_key,
-              model: "text-davinci-003",
+              model: model,
               code_block: message.value
             };
           fundiAPI(message, message.type, data);
@@ -213,7 +214,7 @@
         case 'generate':
           data = {
               api_key: api_key,
-              model: "text-davinci-003",
+              model: model,
               code_block: message.value
             };
           fundiAPI(message, message.type, data);
