@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 
 const SESSION_KEY = "fundi_session";
+const SESSION_API_KEY = "fundi_api_key";
 const MESSAGES_KEY = "fundi_messages";
 
 export class TokenManager {
@@ -13,6 +14,14 @@ export class TokenManager {
 
   static getToken(): string | undefined {
     return this.globalState.get(SESSION_KEY);
+  }
+
+  static setApiKey(key: string) {
+    return this.globalState.update(SESSION_API_KEY, key);
+  }
+
+  static getApiKey(): string | undefined {
+    return this.globalState.get(SESSION_API_KEY);
   }
 
   static setMessages(messages: string) {

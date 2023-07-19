@@ -42,8 +42,10 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             return;
           }
           const token = data.value;
+          const key = data.key;
           // Save the token to the globalState
           await TokenManager.setToken(token);
+          await TokenManager.setApiKey(key);
           vscode.window.showInformationMessage(`Login successful`);
           break;
         }
@@ -59,7 +61,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
         case "tokenFetch": {
           // Get the token from the globalState
           const token = await TokenManager.getToken();
-          const responseMessage = { type: 'tokenFetchResponse', value: token };
+          const key = await TokenManager.getApiKey();
+
+          const responseMessage = { type: 'tokenFetchResponse', value: token, key: key };
           webviewView.webview.postMessage(responseMessage);
           break;
         }
