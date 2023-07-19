@@ -4,6 +4,7 @@
   import { Pulse } from 'svelte-loading-spinners';
   import { createClient } from '@supabase/supabase-js';
   import { SvelteToast , toast } from '@zerodevx/svelte-toast';
+  import { copy } from 'svelte-copy';
   import * as routes from '../routes.json'
   export let theme;
 
@@ -11,16 +12,12 @@
   const supabaseKey = routes.supabaseKey;
   const supabase = createClient(supabaseUrl, supabaseKey);
 
-  let email = '';
-  let password = '';
+  let email, password, newMessage, user_id, session, bg_colour, api_key = '';
   let messages = [];
-  let newMessage = '';
-  const fundiV1 = routes.fundiV1;
-  const api_key = 'x';
-  let session = '';
-  let bg_colour = '';
+  let history = [];
   let activeTab = 'chat';
   let model = 'text-davinci-003';
+  const fundiV1 = routes.fundiV1;
 
   function changeTab(tab) {
     activeTab = tab;
@@ -36,10 +33,11 @@
       });
   }
 
-  function saveToken(token) {
+  function saveToken(token, apiKey) {
     tsvscode.postMessage({
 					type: 'authenticate',
-					value: token
+					value: token,
+          key: apiKey
 				});
   }
 
@@ -89,8 +87,12 @@
         return;
       }
 
-      session = data.session;
-      saveToken(data.session);
+      session = data;
+      user_id = session.user.id;
+      keyFetch(user_id);
+      historyFetch(api_key, user_id);
+
+      saveToken(data, api_key);
       toast.push(`Login successful`);
     } catch (error) {
       console.error('Login error:', error.message);
@@ -156,6 +158,7 @@
 
   function askFundi() {
     let data = {
+        user_id: user_id,
         api_key: api_key,
         model: model,
         code_block: '',
@@ -165,6 +168,87 @@
       value: newMessage
     }
     fundiAPI(message, 'ask', data);
+  }
+
+  function saveFeedback(message) {
+    let data = {
+        user_id: user_id,
+        api_key: api_key,
+        response: message,
+        user_feedback: "INCORRECT"
+      };
+
+    fetch(`${fundiV1}/v1/fundi/feedback`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Transfer-Encoding': 'chunked',
+        'X-Content-Type-Options': 'nosniff'
+      },
+      body: JSON.stringify(data)
+    })
+      .then(response => {
+        toast.push(`Feedback has been saved`);
+      })
+      .catch(error => {
+        toast.push(`Problem saving feedback`);
+        // Handle any errors from the request
+      });
+  }
+
+  function keyFetch(userId) {
+    let data = {
+        user_id: userId
+      };
+
+    fetch(`${fundiV1}/v1/fundi/keyfetch`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      api_key = data[0].key;
+    })
+    .catch(error => {
+      toast.push(`Problem saving feedback`);
+      // Handle any errors from the request
+    });
+  }
+
+  function historyFetch(apiKey, userId) {
+    let data = {
+        user_id: userId,
+        api_key: apiKey
+      };
+
+    fetch(`${fundiV1}/v1/fundi/history`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      history = data;
+    })
+    .catch(error => {
+      toast.push(`Problem saving feedback`);
+      // Handle any errors from the request
+    });
   }
 
   onMount(() => {
@@ -186,6 +270,7 @@
       switch (message.type) {
         case 'debug':
           data = {
+              user_id: user_id,
               api_key: api_key,
               model: model,
               code_block: message.value
@@ -195,6 +280,7 @@
 
         case 'ask':
           data = {
+              user_id: user_id,
               api_key: api_key,
               model: model,
               code_block: message.value
@@ -204,6 +290,7 @@
 
         case 'explain':
           data = {
+              user_id: user_id,
               api_key: api_key,
               model: model,
               code_block: message.value
@@ -213,6 +300,7 @@
 
         case 'generate':
           data = {
+              user_id: user_id,
               api_key: api_key,
               model: model,
               code_block: message.value
@@ -227,12 +315,22 @@
           break;
         case 'tokenFetchResponse':
           const token = message.value;
+          const key = message.key;
+
           // Handle the token received from the extension
           if (token === undefined) {
             session = '';
           }
           else {
             session = token;
+            user_id = session.user.id;
+          }
+          // Handle the api key received from the extension
+          if (key === undefined) {
+            api_key = '';
+          }
+          else {
+            api_key = key;
           }
           break;
         case 'getMessagesResponse':
@@ -252,6 +350,7 @@
 
 <style>
   .chat {
+    margin-top: 20px;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -295,13 +394,18 @@
     padding: 5px;
   }
 
-  .message-box {
-    display: flex;
-    flex-direction: column; /* Update: Change the flex direction to column */
-    margin-top: 16px;
-    margin-bottom: 8px;
-    align-items: flex-end; /* Update: Align items to the start */
-  }
+.message-box {
+  display: flex;
+  flex-direction: column;
+  margin: 4px;
+  margin-top: 16px;
+  margin-bottom: 8px;
+  align-items: flex-start;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
 
   .message-box form {
 		width: 100%;
@@ -315,6 +419,14 @@
     margin-bottom: 8px;
   }
 
+  .message-container {
+    width: 90%;
+    position: fixed;
+    top: 40px;
+    bottom: 60px;
+    overflow-y: scroll;
+  }
+
   .chat-input {
     flex: 1;
     padding: 8px;
@@ -325,6 +437,15 @@
     min-height: 40px;
     max-height: 120px;
   }
+
+.feedback-button {
+  background-color: #0070F380;
+  cursor: pointer;
+  width: 40px;
+  margin-top: 10px;
+  border-radius: 4px;
+  justify-self: start;
+}
 
   .send-button {
     padding: 8px;
@@ -382,7 +503,14 @@
   .tab-container {
     display: flex;
     justify-content: center;
+    margin-top: 0px;
     margin-bottom: 16px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999; /* Optional z-index to ensure it's above other elements */
+    background-color: #0071f380;
   }
 
   .tab {
@@ -431,6 +559,7 @@
         'To get started, type in the message box below or highlight your code then right click to access the options.'
       }</div>
     {:else}
+    <div class='message-container'>
       {#each messages as message}
 
         {#if message.type === 'Query'}
@@ -442,10 +571,17 @@
             </div>
           </div>
         {:else if message.type === 'Response'}
-          <div class='message-response'>{@html snarkdown(message.data)}</div>
+          <div class='message-response'>
+            
+            {@html snarkdown(message.data)}
+            <br/>
+            <button class = "feedback-button" on:click={saveFeedback(message.data)}>👎🏽</button>
+            <button class = "feedback-button" use:copy={message.data} on:svelte-copy={(event) => toast.push(`Copied to clipboard`)}>📋</button>
+          </div>
         {/if}
         
       {/each}
+    </div>
     {/if}
 
     <div class='message-box'>
