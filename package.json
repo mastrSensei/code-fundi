@@ -136,6 +136,7 @@
     "@zerodevx/svelte-toast": "^0.9.3",
     "axios": "^1.4.0",
     "snarkdown": "^2.0.0",
+    "svelte-copy": "^1.4.1",
     "svelte-loading-spinners": "^0.3.4"
   }
 }

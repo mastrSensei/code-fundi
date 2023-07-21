@@ -16,6 +16,9 @@ dependencies:
   snarkdown:
     specifier: ^2.0.0
     version: 2.0.0
+  svelte-copy:
+    specifier: ^1.4.1
+    version: 1.4.1(svelte@3.59.1)
   svelte-loading-spinners:
     specifier: ^0.3.4
     version: 0.3.4
@@ -3547,6 +3550,14 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
     dev: true
+
+  /svelte-copy@1.4.1(svelte@3.59.1):
+    resolution: {integrity: sha512-ixNNlTfIQWYnQzE0pdMYVCS/2jzMhXm41jmtSvk8EK2Dh+B5sDFEz2xYYo4fVtwtK0dLW5M5ZH/Rs5Jah0r6dw==}
+    peerDependencies:
+      svelte: ^3.55.0 || ^4.0.0
+    dependencies:
+      svelte: 3.59.1
+    dev: false
 
   /svelte-hmr@0.15.2(svelte@3.59.1):
     resolution: {integrity: sha512-q/bAruCvFLwvNbeE1x3n37TYFb3mTBJ6TrCq6p2CoFbSTNhDE9oAtEfpy+wmc9So8AG0Tja+X0/mJzX9tSfvIg==}
