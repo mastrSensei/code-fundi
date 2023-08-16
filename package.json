@@ -2,7 +2,7 @@
   "name": "code-fundi",
   "displayName": "Code Fundi",
   "description": "CodeFundi is an AI-powered code assistant that helps developers write better code faster",
-  "version": "0.0.4",
+  "version": "0.0.1",
   "publisher": "code-fundi",
   "icon": "media/gradient-bg-logo.png",
   "engines": {
@@ -25,7 +25,7 @@
   },
   "homepage": "http://github.com/code-Fundi/code-fundi/blob/main/README.md",
   "activationEvents": [],
-  "main": "./out/compiled/SideBar.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "viewsContainers": {
       "activitybar": [
@@ -105,9 +105,13 @@
   },
   "scripts": {
     "vscode:prepublish": "npm install && npm run compile",
-    "compile": "rollup -c && webpack --mode production",
+    "publish-prerelease": "vsce publish --pre-release",
+    "publish": "vsce publish",
+
+    "compile": "concurrently \"rollup -c \" \"webpack --mode development\"",
     "watch": "concurrently \"rollup -c -w\" \"webpack --watch --mode development\"",
     "package": "webpack --mode production --devtool hidden-source-map",
+    
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
