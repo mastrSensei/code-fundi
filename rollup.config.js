@@ -1,6 +1,6 @@
-import svelte from "rollup-plugin-svelte";
-import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
+import resolve from "@rollup/plugin-node-resolve";
+import svelte from "rollup-plugin-svelte";
 import terser from "@rollup/plugin-terser";
 import sveltePreprocess from "svelte-preprocess";
 import typescript from "@rollup/plugin-typescript";
@@ -67,7 +67,7 @@ export default fs
 
         // If we're building for production (npm run build
         // instead of npm run dev), minify
-        production && terser(),
+        terser(),
       ],
       watch: {
         clearScreen: false,
