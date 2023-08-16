@@ -170,12 +170,12 @@
     fundiAPI(message, 'ask', data);
   }
 
-  function saveFeedback(message) {
+  function saveFeedback(message, user_feedback) {
     let data = {
         user_id: user_id,
         api_key: api_key,
         response: message,
-        user_feedback: "INCORRECT"
+        user_feedback: user_feedback
       };
 
     fetch(`${fundiV1}/v1/fundi/feedback`, {
@@ -439,12 +439,13 @@
   }
 
 .feedback-button {
-  background-color: #0070F380;
+  background-color: #0070F300;
   cursor: pointer;
-  width: 40px;
-  margin-top: 10px;
+  width: 20px;
+  margin-top: 5px;
   border-radius: 4px;
   justify-self: start;
+  font-size: 11px;
 }
 
   .send-button {
@@ -563,7 +564,7 @@
       {#each messages as message}
 
         {#if message.type === 'Query'}
-          <div class='message'>{@html snarkdown(message.data)}</div>
+          <div class='message'>{@html message.data}</div>
         {:else if message.type === 'Waiting'}
           <div class='message-response'>{@html snarkdown(message.data)}
             <div class='loader'>
@@ -572,10 +573,13 @@
           </div>
         {:else if message.type === 'Response'}
           <div class='message-response'>
-            
+            <div class='loader'>
+              <Pulse size='20' color='#e81224' unit='px' duration='13s' />
+            </div>
             {@html snarkdown(message.data)}
             <br/>
-            <button class = "feedback-button" on:click={saveFeedback(message.data)}>👎🏽</button>
+            <button class = "feedback-button" on:click={saveFeedback(message.data, "CORRECT")}>👍🏽</button>
+            <button class = "feedback-button" on:click={saveFeedback(message.data, "INCORRECT")}>👎🏽</button>
             <button class = "feedback-button" use:copy={message.data} on:svelte-copy={(event) => toast.push(`Copied to clipboard`)}>📋</button>
           </div>
         {/if}

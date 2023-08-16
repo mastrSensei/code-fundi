@@ -3,7 +3,7 @@
 import * as vscode from 'vscode';
 import { SideBarPanel } from './SideBarPanel';
 import { SidebarProvider } from './SidebarProvider';
-import { TokenManager } from "./TokenManager";
+import { TokenManager } from "./tokenManager";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed

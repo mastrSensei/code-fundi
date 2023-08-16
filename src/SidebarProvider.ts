@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
-import { TokenManager } from "./TokenManager";
+import { TokenManager } from "./tokenManager";
 // import { oAuth } from "./oAuth";
 
 export class SidebarProvider implements vscode.WebviewViewProvider {
