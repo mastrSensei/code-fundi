@@ -46,13 +46,11 @@ From interactive code generation and explanation to debugging and test generatio
 
 # Installation Guide
 
-Coming Soon 🚀
-<br />
-<br />
+- [How to install](https://docs.codefundi.app/docs/installation)
 
 # Documentation
 
-- [Code Fundi Docs](https://code-fundi-docs.vercel.app/)
+- [Code Fundi Docs](https://docs.codefundi.app/)
 
 # Architecture
 
@@ -63,12 +61,6 @@ This project uses our very own `STNGS` stack 🐝.
 - NextJS
 - GraphQL
 - Svelte
-
-# Why LLM?
-
-Since LLMs (Large Language Models) perform well at a wide variety of tasks, it allows them to excel at a different things simultaneously.
-
-One of those tasks is predicting the next word in a sentence which allows them to capture the syntax and semantics of human language. This offers users who interact with these models a seamless experience as they are able to use natural language and ask open ended questions.
 
 Finally, LLMs have shown impressive general knowledge about the world and are able to remember a lot of facts through training. This lets users gain real world information whenever they interact with our models.
 
