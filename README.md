@@ -61,8 +61,3 @@ This project uses our very own `STNGS` stack 🐝.
 - NextJS
 - GraphQL
 - Svelte
-
-Finally, LLMs have shown impressive general knowledge about the world and are able to remember a lot of facts through training. This lets users gain real world information whenever they interact with our models.
-
-This also provides us with plenty of room for growth as we continue training our models to create a better assistant that helps developers everywhere improve their workflows.
-
